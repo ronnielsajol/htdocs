@@ -6,6 +6,7 @@
 
 body {
 	font-family: "Roboto", sans-serif;
+	background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 	line-height: 1.6;
 	margin: 0;
 	padding: 0;
@@ -14,17 +15,76 @@ body {
 	min-height: 100vh;
 }
 
-h1,
-h2,
-h3 {
+.hero h1,
+.hero h2,
+.hero h3 {
 	font-family: "Montserrat", sans-serif;
 }
 
 header {
-	background-color: #333;
+	background-color: rgba(51, 51, 51, 0.2);
 	color: #fff;
 	text-align: center;
-	padding: 1rem;
+	padding: 0.2rem 1rem;
+}
+
+.header h1 {
+	font-family: "Bungee Spice", sans-serif;
+}
+
+.header {
+	display: flex;
+	justify-content: space-between;
+}
+
+.logo-link {
+	text-decoration: none;
+}
+
+.header-right {
+	display: flex;
+	align-items: center;
+}
+
+.greet-user {
+	color: whitesmoke;
+}
+
+.cart-icon {
+	margin-right: 1rem;
+}
+
+.cart-icon i {
+	font-size: 1.5rem;
+	margin-right: 0.5rem;
+}
+
+.user-info {
+	position: relative;
+}
+
+.user-info:hover {
+	cursor: pointer;
+}
+
+.popover-menu {
+	display: none;
+	background-color: #cbcdd0;
+	position: absolute;
+	width: 100%;
+	border-radius: 5px;
+}
+
+.popover-menu a {
+	border-radius: 5px;
+	text-decoration: none;
+	color: #333;
+	width: 100%;
+	display: inline-block;
+}
+
+.popover-menu a:hover {
+	background-color: #ddd8d8;
 }
 
 main {
@@ -41,7 +101,7 @@ main {
 	box-shadow: 12px 10px 21px -6px rgba(0, 0, 0, 0.25);
 	padding: 1.5rem;
 	text-align: center;
-	max-width: 300px;
+	/* max-width: 300px; */
 	width: 100%;
 }
 
@@ -88,23 +148,9 @@ footer {
 
 .product-grid {
 	display: grid;
-	grid-template-columns: repeat(5, minmax(300px, 1fr));
+	grid-template-columns: repeat(4, minmax(300px, 1fr));
 	gap: 1rem;
-}
-
-.logout-btn {
-	display: inline-block;
-	padding: 10px 20px;
-	background-color: #f44336; /* Red color for logout */
-	color: white;
-	text-decoration: none;
-	border-radius: 5px;
-	font-weight: bold;
-	margin-top: 10px;
-}
-
-.logout-btn:hover {
-	background-color: #d32f2f; /* Darker red on hover */
+	width: 100%;
 }
 
 .success-message {
@@ -115,4 +161,14 @@ footer {
 .error-message {
 	text-transform: uppercase;
 	color: rgb(165, 10, 10);
+}
+
+.cart-page {
+	display: flex;
+	flex-direction: column;
+}
+
+.cart-items {
+	display: flex;
+	gap: 1em;
 }

@@ -15,39 +15,39 @@ require_once __DIR__ . '/middleware/AuthMiddleware.php';
 // The output -> Index
 
 // Guest routes
-get('/', function() {
+get('/', function () {
     AuthMiddleware::handleGuestOnly();
     require 'views/auth/login.php';
 });
 
-get('/register', function() {
+get('/register', function () {
     AuthMiddleware::handleGuestOnly();
     require 'views/auth/register.php';
 });
 
-get('/merchant/login', function() {
+get('/merchant/login', function () {
     AuthMiddleware::handleGuestOnly();
     require 'views/auth/merchant-login.php';
 });
 
-get('/merchant/register', function() {
+get('/merchant/register', function () {
     AuthMiddleware::handleGuestOnly();
     require 'views/auth/merchant-register.php';
 });
 
 // Protected user routes
-get('/home', function() {
+get('/home', function () {
     AuthMiddleware::handleUserAuth();
     require 'views/index.php';
 });
 
-get('/logout', function() {
+get('/logout', function () {
     AuthMiddleware::handleUserAuth();
     require 'views/auth/logout.php';
 });
 
 // Protected merchant routes
-get('/merchant/dashboard', function() {
+get('/merchant/dashboard', function () {
     AuthMiddleware::handleMerchantAuth();
     require 'views/merchant-dashboard.php';
 });
@@ -82,8 +82,8 @@ post('/merchant/register', function () {
 });
 
 // CartController Routes
-get('/cart', function() { 
-    AuthMiddleware::handleUserAuth(); 
+get('/cart', function () {
+    AuthMiddleware::handleUserAuth();
     require 'views/cart.php';
 });
 
@@ -99,7 +99,8 @@ post('/cart/update', function () {
 
 post('/cart/remove', function () {
     $controller = new CartController();
-    echo json_encode($controller->removeFromCart());
+    $response = $controller->removeFromCart(); // Get the return value
+    echo json_encode($response);
 });
 
 // ##################################################

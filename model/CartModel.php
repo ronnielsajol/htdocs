@@ -2,38 +2,42 @@
 
 require_once __DIR__ . '/Database.php';  // Use __DIR__ for reliable path resolution
 
-class CartModel {
+class CartModel
+{
     private $conn;
 
-    public function __construct() {
+    public function __construct()
+    {
         $database = new Database();
         $this->conn = $database->getConnection();
     }
-    
+
 
     // Get all products
-    public function getProducts() {
+    public function getProducts()
+    {
         $sql = "SELECT * FROM products";
         $result = $this->conn->query($sql);
         $result = $this->conn->query($sql);
         $products = [];
-        
+
         if ($result && $result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
+            while ($row = $result->fetch_assoc()) {
                 $products[] = $row;
             }
         }
-        
+
         return $products;
     }
 
     // Get cart items for a user
-    public function getCartItems($user_id) {
+    public function getCartItems($user_id)
+    {
         $sql = "SELECT c.*, p.name, p.price, p.image 
                 FROM cart c 
                 JOIN products p ON c.product_id = p.id 
                 WHERE c.user_id = ?";
-                
+
         $stmt = $this->conn->prepare($sql);
         if (!$stmt) {
             return [];
@@ -42,20 +46,21 @@ class CartModel {
         $stmt->execute();
         $result = $stmt->get_result();
         $items = [];
-        
-        while($row = $result->fetch_assoc()) {
+
+        while ($row = $result->fetch_assoc()) {
             $items[] = $row;
         }
-        
+
         return $items;
     }
 
     // Add item to cart
-    public function addToCart($user_id, $product_id, $quantity) {
+    public function addToCart($user_id, $product_id, $quantity)
+    {
         $sql = "INSERT INTO cart (user_id, product_id, quantity) 
                 VALUES (?, ?, ?) 
                 ON DUPLICATE KEY UPDATE quantity = quantity + ?";
-        
+
         try {
             $stmt = $this->conn->prepare($sql);
             if (!$stmt) {
@@ -74,10 +79,11 @@ class CartModel {
     }
 
     // Update cart quantity
-    public function updateCartQuantity($user_id, $product_id, $quantity) {
+    public function updateCartQuantity($user_id, $product_id, $quantity)
+    {
         $sql = "UPDATE cart SET quantity = ? 
                 WHERE user_id = ? AND product_id = ?";
-                
+
         $stmt = $this->conn->prepare($sql);
         if (!$stmt) {
             return false;
@@ -87,7 +93,8 @@ class CartModel {
     }
 
     // Remove item from cart
-    public function removeFromCart($user_id, $product_id) {
+    public function removeFromCart($user_id, $product_id)
+    {
         $sql = "DELETE FROM cart WHERE user_id = ? AND product_id = ?";
         $stmt = $this->conn->prepare($sql);
         if (!$stmt) {
@@ -95,5 +102,34 @@ class CartModel {
         }
         $stmt->bind_param("ii", $user_id, $product_id);
         return $stmt->execute();
+    }
+
+    public function getCartTotal($userId)
+    {
+        $stmt = $this->conn->prepare("SELECT SUM(p.price * c.quantity) AS total 
+                                      FROM cart c 
+                                      JOIN products p ON c.product_id = p.id 
+                                      WHERE c.user_id = ?");
+        if (!$stmt) {
+            return 0;
+        }
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        return $row['total'] ?? 0; // Return 0 if total is NULL
+    }
+
+    public function isCartEmpty($userId)
+    {
+        $stmt = $this->conn->prepare("SELECT COUNT(*) AS count FROM cart WHERE user_id = ?");
+        if (!$stmt) {
+            return true; // Assume empty if there's an error
+        }
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        return $row['count'] == 0;
     }
 }

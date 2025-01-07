@@ -58,17 +58,34 @@ class CartController
         $data = json_decode(file_get_contents('php://input'), true);
 
         if (!isset($data['product_id'])) {
-            return [
+            echo json_encode([
                 'success' => false,
                 'message' => 'Missing product_id'
-            ];
+            ]);
+            return;
         }
 
         $db = new CartModel();
         $success = $db->removeFromCart($this->userId, $data['product_id']);
-        return [
-            'success' => $success,
-            'message' => $success ? 'Item removed from cart' : 'Failed to remove item from cart'
-        ];
+
+        if ($success) {
+            // Fetch updated cart total
+            $cartTotal = $db->getCartTotal($this->userId);
+
+            // Check if cart is empty
+            $isCartEmpty = $db->isCartEmpty($this->userId);
+
+            return [
+                'success' => true,
+                'new_total' => $cartTotal,
+                'cart_empty' => $isCartEmpty,
+                'message' => 'Item removed from cart'
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => 'Failed to remove item from cart'
+            ];
+        }
     }
 }

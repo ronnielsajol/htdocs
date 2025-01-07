@@ -13,6 +13,13 @@ $user_id = SessionHelper::get('user_id');
 $cartModel = new CartModel();
 $cart_items = $cartModel->getCartItems($user_id);
 
+$cart_total = 0;
+if (!empty($cart_items)) {
+    $cart_total = array_reduce($cart_items, function ($total, $item) {
+        return $total + ($item['price'] * $item['quantity']);
+    }, 0);
+}
+
 include 'shared/header.php';
 ?>
 
@@ -24,39 +31,37 @@ include 'shared/header.php';
         <?php else: ?>
             <?php foreach ($cart_items as $item): ?>
                 <div class="cart-item" data-product-id="<?php echo $item['product_id']; ?>">
-                    <img src="<?php echo htmlspecialchars($item['image']); ?>" 
-                         alt="<?php echo htmlspecialchars($item['name']); ?>" 
-                         class="item-image">
+                    <img src="<?php echo htmlspecialchars($item['image']); ?>"
+                        alt="<?php echo htmlspecialchars($item['name']); ?>"
+                        class="item-image">
                     <div class="item-details">
                         <h3><?php echo htmlspecialchars($item['name']); ?></h3>
-                        <p class="item-price">$<?php echo number_format($item['price'], 2); ?></p>
+                        <p class="item-price">₱<?php echo number_format($item['price'], 2); ?></p>
                         <div class="item-quantity">
-                            <label for="quantity-<?php echo $item['product_id']; ?>">Quantity:</label>
-                            <input type="number" 
-                                   id="quantity-<?php echo $item['product_id']; ?>" 
-                                   name="quantity" 
-                                   value="<?php echo $item['quantity']; ?>" 
-                                   min="1" 
-                                   max="10"
-                                   class="quantity-input">
+                            <label for="quantity-<?php echo $item['product_id']; ?>">Quantity</label>
+                            <button class="decrease">-</button>
+                            <input type="number"
+                                id="quantity-<?php echo $item['product_id']; ?>"
+                                name="quantity"
+                                value="<?php echo $item['quantity']; ?>"
+                                min="1"
+                                max="10"
+                                class="quantity-input">
+                            <button class="increase">+</button>
                         </div>
-                    </div>
-                    <button class="remove-item" 
+                        <button class="remove-item"
                             data-product-id="<?php echo $item['product_id']; ?>">
-                        Remove
-                    </button>
+                            Remove
+                        </button>
+                    </div>
                 </div>
             <?php endforeach; ?>
-            
-            <div class="cart-summary">
-                <p>Total: <span class="cart-total">$<?php 
-                    echo number_format(array_sum(array_map(function($item) {
-                        return $item['price'] * $item['quantity'];
-                    }, $cart_items)), 2);
-                ?></span></p>
-                <button class="checkout-btn">Proceed to Checkout</button>
-            </div>
+
         <?php endif; ?>
+    </div>
+    <div class="cart-summary">
+        <p>Total: <span class="cart-total">₱<?php echo number_format($cart_total, 2); ?></span></p>
+        <button class="checkout-btn" <?php echo empty($cart_items) ? 'disabled' : ''; ?>>Proceed to Checkout</button>
     </div>
 </main>
 
