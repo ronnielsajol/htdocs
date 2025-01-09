@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../model/Database.php';
+require_once __DIR__ . '/../model/UserModel.php';
 
 class UserController
 {
@@ -122,5 +123,15 @@ class UserController
     // Redirect back to login page with the message
     header('Location: /');
     exit;
+  }
+
+  public function showOrders()
+  {
+    $db = new UserModel();
+    $orders =  $db->getOrders();
+
+    if (isset($orders['error'])) {
+      echo $orders['error']; // Display the error if any
+    }
   }
 }

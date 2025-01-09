@@ -18,7 +18,7 @@ class FileUploader
     }
   }
 
-  public function upload(array $file, int $merchantId, int $productId): string
+  public function upload(array $file, int $merchantId,  $productId): string
   {
     if ($file['error'] !== UPLOAD_ERR_OK) {
       throw new Exception('File upload error code: ' . $file['error']);

@@ -10,7 +10,9 @@ class CartController
     public function __construct()
     {
         // Start the session and initialize user ID
-        session_start();
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
         // For now, use a dummy user ID
         $this->userId = $_SESSION['user_id'] ?? 1;
     }
@@ -85,6 +87,43 @@ class CartController
             return [
                 'success' => false,
                 'message' => 'Failed to remove item from cart'
+            ];
+        }
+    }
+
+    public function getCartSummary()
+    {
+        $db = new CartModel();
+        $cartSummary = $db->getCartSummary($this->userId);
+
+        if (!empty($cartSummary['items'])) {
+            return [
+                'success' => true,
+                'data' => $cartSummary
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => 'Cart is empty'
+            ];
+        }
+    }
+
+    public function checkout()
+    {
+        $db = new CartModel();
+        $response = $db->checkout($this->userId);
+
+        if ($response['success']) {
+            return [
+                'success' => true,
+                'message' => 'Checkout successful!',
+                'order_id' => $response['order_id']
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => $response['message']
             ];
         }
     }

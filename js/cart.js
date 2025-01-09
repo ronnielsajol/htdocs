@@ -103,6 +103,47 @@ document.addEventListener("DOMContentLoaded", function () {
 			removeFromCart(productId);
 		});
 	});
+
+	// Checkout
+
+	// const checkoutButton = document.querySelector(".checkout-btn");
+	// if (checkoutButton) {
+	// 	checkoutButton.addEventListener("click", () => {
+	// 		// Collect cart items
+	// 		const cartItems = [];
+	// 		document.querySelectorAll(".cart-item").forEach((item) => {
+	// 			const productId = item.dataset.productId;
+	// 			const quantity = parseInt(item.querySelector(".quantity-input").value, 10);
+	// 			const price = parseFloat(item.querySelector(".item-price").textContent.replace("₱", "").replace(",", "").trim());
+
+	// 			cartItems.push({ product_id: productId, quantity, price });
+	// 		});
+
+	// 		// Send data to backend
+	// 		fetch("/cart/summary", {
+	// 			method: "POST",
+	// 			headers: {
+	// 				"Content-Type": "application/json",
+	// 			},
+	// 			body: JSON.stringify({ cart: cartItems }),
+	// 		})
+	// 			.then((response) => response.json())
+	// 			.then((data) => {
+	// 				if (data.success) {
+	// 					// Redirect to checkout page or show confirmation
+	// 					window.location.href = "/checkout/summary";
+	// 				} else {
+	// 					alert("Error proceeding to checkout: " + data.message);
+	// 				}
+	// 			})
+	// 			.catch((error) => {
+	// 				console.error("Error during checkout:", error);
+	// 				alert("Something went wrong. Please try again.");
+	// 			});
+	// 	});
+	// } else {
+	// 	console.warn("Checkout button not found in the DOM.");
+	// }
 });
 
 function removeFromCart(productId) {

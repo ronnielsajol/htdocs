@@ -42,6 +42,13 @@ get('/home', function () {
     require 'views/index.php';
 });
 
+get('/orders', function () {
+    AuthMiddleware::handleUserAuth(); // Ensure the user is authenticated
+    $controller = new UserController(); // Assuming orders are part of UserController
+    $orders = $controller->showOrders(); // 
+    require 'views/orders-page.php'; // The view to display the user's orders
+});
+
 get('/logout', function () {
     AuthMiddleware::handleUserAuth();
     require 'views/auth/logout.php';
@@ -152,16 +159,45 @@ post('/cart/remove', function () {
 });
 
 
+get('/cart/summary', function () {
+    AuthMiddleware::handleUserAuth();
+    require 'views/checkout-page.php';
+});
+
+post('/cart/checkout', function () {
+    AuthMiddleware::handleUserAuth();
+    $controller = new CartController();
+    $message = $controller->checkout();
+    echo json_encode($message);
+});
+
+
+
+
+
 get('/seed-database', function () {
     // Optional: Add some kind of protection to ensure this is not exposed in production
-    if ($_SERVER['REMOTE_ADDR'] !== '127.0.0.1') { // Allow only local access
+    if ($_SERVER['REMOTE_ADDR']  !== '127.0.0.1' && $_SERVER['REMOTE_ADDR'] !== '::1') { // Allow only local access
         header('HTTP/1.0 403 Forbidden');
         echo 'Access denied.';
         exit();
     }
 
-    require_once __DIR__ . 'includes/database-seeder.php'; // Include the seeder file
+    require_once __DIR__ . '/includes/database-seeder.php'; // Include the seeder file
     echo 'Database seeding completed.';
+});
+
+
+get('/migrate', function () {
+    // Optional: Add some kind of protection to ensure this is not exposed in production
+    if ($_SERVER['REMOTE_ADDR']  !== '127.0.0.1' && $_SERVER['REMOTE_ADDR'] !== '::1') { // Allow only local access
+        header('HTTP/1.0 403 Forbidden');
+        echo 'Access denied.';
+        exit();
+    }
+
+    require_once __DIR__ . '/includes/migrate.php'; // Include the seeder file
+    echo 'migrate completed.';
 });
 
 get('/seed-products', function () {
@@ -177,6 +213,8 @@ get('/seed-products', function () {
 
     seedProductsForMerchant($conn, $merchantId, $productCount);
 });
+
+
 
 
 // For GET or POST

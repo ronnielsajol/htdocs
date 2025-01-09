@@ -68,7 +68,10 @@ include 'shared/header.php';
         </div>
         <div class="cart-summary">
             <p>Total: <span class="cart-total">₱<?php echo number_format($cart_total, 2); ?></span></p>
-            <button class="checkout-btn" <?php echo empty($cart_items) ? 'disabled' : ''; ?>>Proceed to Checkout</button>
+            <form action="/cart/summary" method="get">
+                <button class="checkout-btn" <?php echo empty($cart_items) ? 'disabled' : ''; ?>>Proceed to Checkout</button>
+
+            </form>
         </div>
     </main>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>

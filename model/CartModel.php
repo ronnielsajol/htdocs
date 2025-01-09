@@ -151,4 +151,102 @@ class CartModel
 
         return $products;
     }
+    public function getCartSummary($user_id)
+    {
+        $sql = "SELECT p.name, p.price, c.quantity, (p.price * c.quantity) AS subtotal
+            FROM cart c
+            JOIN products p ON c.product_id = p.id
+            WHERE c.user_id = ?";
+
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return [
+                'items' => [],
+                'total' => 0,
+            ];
+        }
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $items = [];
+        $total = 0;
+
+        while ($row = $result->fetch_assoc()) {
+            $items[] = $row;
+            $total += $row['subtotal']; // Calculate total price
+        }
+
+        return [
+            'items' => $items,
+            'total' => $total,
+        ];
+    }
+
+
+
+    public function checkout($user_id)
+    {
+        $this->conn->begin_transaction(); // Start a transaction
+        try {
+            // Fetch cart items
+            $cartItems = $this->getCartItems($user_id);
+            if (empty($cartItems)) {
+                throw new Exception("Cart is empty. Cannot proceed with checkout.");
+            }
+
+            // Calculate total price
+            $total = $this->getCartTotal($user_id);
+
+            // Create an order record
+            $orderSql = "INSERT INTO orders (user_id, total_amount, created_at) VALUES (?, ?, NOW())";
+            $orderStmt = $this->conn->prepare($orderSql);
+            if (!$orderStmt) {
+                throw new Exception("Failed to prepare order statement: " . $this->conn->error);
+            }
+            $orderStmt->bind_param("id", $user_id, $total);
+            $orderStmt->execute();
+            $order_id = $this->conn->insert_id; // Get the newly created order ID
+
+            // Add cart items to order_items table
+            $orderItemSql = "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)";
+            $orderItemStmt = $this->conn->prepare($orderItemSql);
+            if (!$orderItemStmt) {
+                throw new Exception("Failed to prepare order item statement: " . $this->conn->error);
+            }
+            foreach ($cartItems as $item) {
+                $orderItemStmt->bind_param(
+                    "iiid",
+                    $order_id,
+                    $item['product_id'],
+                    $item['quantity'],
+                    $item['price']
+                );
+                $orderItemStmt->execute();
+            }
+
+            // Clear the user's cart
+            $clearCartSql = "DELETE FROM cart WHERE user_id = ?";
+            $clearCartStmt = $this->conn->prepare($clearCartSql);
+            if (!$clearCartStmt) {
+                throw new Exception("Failed to prepare clear cart statement: " . $this->conn->error);
+            }
+            $clearCartStmt->bind_param("i", $user_id);
+            $clearCartStmt->execute();
+
+            $this->conn->commit(); // Commit transaction
+
+            return [
+                'success' => true,
+                'message' => 'Checkout successful',
+                'order_id' => $order_id,
+            ];
+        } catch (Exception $e) {
+            $this->conn->rollback(); // Rollback transaction on error
+            return [
+                'success' => false,
+                'message' => 'Checkout failed: ' . $e->getMessage(),
+            ];
+        }
+    }
 }

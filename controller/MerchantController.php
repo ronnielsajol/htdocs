@@ -276,37 +276,40 @@ class MerchantController
         $description = trim($_POST['description']);
         $merchantId = $_SESSION['merchant_id'];
 
+        // Check for file upload errors first
+        if ($_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+          throw new Exception('Error uploading the image: ' . $_FILES['image']['error']);
+        }
+
+        // Check for valid image format
+        $validImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        $fileType = mime_content_type($_FILES['image']['tmp_name']);
+
+        if (!in_array($fileType, $validImageTypes)) {
+          throw new Exception('Invalid image format. Only JPEG, PNG, and GIF are allowed.');
+        }
+
         // Database connection
         $db = new Database();
         $conn = $db->getConnection();
 
-        // Insert product data without image first to get product ID
-        $stmt = $conn->prepare("INSERT INTO products (name, description, price, quantity, merchant_id) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param('ssdii', $name, $description, $price, $quantity, $merchantId);
+        // Handle image upload before inserting product
+        $uploader = new FileUploader(__DIR__ . '/../uploads/images');
+        $imageFileName = $uploader->upload($_FILES['image'], $merchantId, null); // No product ID yet
+
+        // Insert product data into the database
+        $stmt = $conn->prepare("INSERT INTO products (name, description, price, quantity, merchant_id, image) VALUES (?, ?, ?, ?, ?, ?)");
+        $imagePath = '/uploads/images/' . $imageFileName;
+        $stmt->bind_param('ssdiss', $name, $description, $price, $quantity, $merchantId, $imagePath);
 
         if (!$stmt->execute()) {
           throw new Exception('Error adding product: ' . $stmt->error);
         }
 
-        // Get the last inserted product ID
-        $productId = $conn->insert_id;
-
-        // Handle image upload
-        $uploader = new FileUploader(__DIR__ . '/../uploads/images');
-        $imageFileName = $uploader->upload($_FILES['image'], $merchantId, $productId);
-
-        // Update product with image path
-        $imagePath = '/uploads/images/' . $imageFileName;
-        $stmt = $conn->prepare("UPDATE products SET image = ? WHERE id = ?");
-        $stmt->bind_param('si', $imagePath, $productId);
-
-        if ($stmt->execute()) {
-          $message = 'Product added successfully.';
-          header('Location: /merchant/dashboard');
-          exit;
-        } else {
-          throw new Exception('Error updating product with image: ' . $stmt->error);
-        }
+        // Product added successfully
+        $message = 'Product added successfully.';
+        header('Location: /merchant/dashboard');
+        exit;
       } catch (Exception $e) {
         $message = $e->getMessage();
       }
