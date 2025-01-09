@@ -1,5 +1,4 @@
 <?php
-session_start();
 
 if (!isset($_SESSION['merchant_id'])) {
     header("Location: auth/merchant-login.php");
@@ -7,6 +6,14 @@ if (!isset($_SESSION['merchant_id'])) {
 }
 
 $merchant_username = $_SESSION['merchant_username'];
+$merchant_id = $_SESSION['merchant_id'];
+
+
+$db = new CartModel();
+$merchantProducts = $db->getProductsForMerchant($merchant_id);
+
+
+include 'shared/merchant-header.php';
 ?>
 
 <!DOCTYPE html>
@@ -17,89 +24,62 @@ $merchant_username = $_SESSION['merchant_username'];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Merchant Dashboard</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
 </head>
 
 <body>
-    <header>
-        <h2>Welcome, <?php echo htmlspecialchars($merchant_username); ?>!</h2>
-        <nav>
-            <a href="/logout" class="btn btn-logout">Logout</a>
-        </nav>
-    </header>
 
     <main>
         <section class="dashboard-content">
-            <h3>Merchant Dashboard</h3>
-            <p>This is your merchant dashboard. You can add your merchant-specific features here.</p>
-            <!-- Add more merchant-specific features here -->
+
+            <div class="dashboard-header">
+                <h2>Your Products</h2>
+                <a href="/merchant/products/add" class="add-product">Add Product</a>
+            </div>
+
+            <?php if (!empty($merchantProducts)) : ?>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($merchantProducts as $product) : ?>
+                            <tr>
+                                <td>
+                                    <img src="<?php echo htmlspecialchars($product['image']); ?>" alt="Product Image">
+                                </td>
+                                <td><?php echo htmlspecialchars($product['name']); ?></td>
+                                <td><?php echo htmlspecialchars($product['description']); ?></td>
+                                <td><?php echo htmlspecialchars(number_format($product['price'], 2)); ?></td>
+                                <td><?php echo htmlspecialchars($product['quantity']); ?></td>
+                                <td>
+                                    <a href="/merchant/products/edit?id=<?php echo $product['id']; ?>"><i class="fa-solid fa-pen-to-square"></i></a> |
+                                    <form action="/merchant/products/delete" method="post" style="display: inline;">
+                                        <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
+                                        <button type="submit" onclick="return confirm('Are you sure you want to delete this product?');">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php else : ?>
+                <p>No products found. <a href="add-product.php">Add a new product</a></p>
+            <?php endif; ?>
         </section>
     </main>
 
-    <footer>
-        <p>Are you a customer? <a href="auth/login.php" class="btn btn-customer-login">Go to Customer Login</a></p>
-    </footer>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-
-        header {
-            background-color: #333;
-            color: #fff;
-            padding: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        main {
-            padding: 2rem;
-            background-color: #fff;
-            margin-top: 2rem;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        footer {
-            margin-top: 2rem;
-            text-align: center;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 10px 15px;
-            background-color: #4CAF50;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn:hover {
-            background-color: #45a049;
-        }
-
-        .btn-logout {
-            background-color: #f44336;
-        }
-
-        .btn-logout:hover {
-            background-color: #d32f2f;
-        }
-
-        .btn-customer-login {
-            background-color: #2196F3;
-        }
-
-        .btn-customer-login:hover {
-            background-color: #1976D2;
-        }
-    </style>
-</body>
+</body><?php include 'shared/footer.php'; ?>
 
 </html>

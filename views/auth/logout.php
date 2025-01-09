@@ -3,34 +3,42 @@
 
 require_once __DIR__ . '/../../helpers/SessionHelper.php';
 
-// Initialize the session if it hasn't been started
-SessionHelper::init();
+// Start the session if not already started
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
 
 // Determine the redirect URL based on the user's role
-$redirectUrl = '/';
-if (SessionHelper::get('role') === 'merchant') {
+$redirectUrl = '/'; // Default redirect
+$role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
+
+if ($role === 'merchant') {
     $redirectUrl = '/merchant/login';
-} elseif (SessionHelper::get('role') === 'user') {
-    $redirectUrl = '/login';
+} elseif ($role === 'user') {
+    $redirectUrl = '/';
 }
 
 // Clear all session data
-SessionHelper::destroy();
+$_SESSION = []; // Clear session variables
+session_destroy(); // Destroy the session
 
-// Ensure that the output buffering is turned on
-if (ob_get_level() == 0) ob_start();
-
-// Unset cookies by setting them to expire in the past
+// Unset the session cookie if it exists
 if (ini_get("session.use_cookies")) {
     $params = session_get_cookie_params();
-    setcookie(session_name(), '', time() - 42000,
-        $params["path"], $params["domain"],
-        $params["secure"], $params["httponly"]
+    setcookie(
+        session_name(),
+        '',
+        time() - 42000,
+        $params["path"],
+        $params["domain"],
+        $params["secure"],
+        $params["httponly"]
     );
 }
 
+// Debugging step (remove in production)
+print_r($_SESSION); // Should show an empty array
+
 // Redirect to the appropriate page
 header("Location: $redirectUrl");
-
-// Ensure that the script stops executing after the redirect
 exit();

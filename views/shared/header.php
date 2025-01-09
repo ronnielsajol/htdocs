@@ -36,7 +36,7 @@ $base_url = rtrim($relative_path, '/');
                 <span class="sr-only">Cart</span>
             </a>
             <div class="user-info">
-                <h2 class="greet-user"><?php echo htmlspecialchars($_SESSION['username']); ?></h2>
+                <h2 class="greet-user"><?php echo htmlspecialchars($_SESSION['username']); ?><i class="fa-solid fa-caret-left"></i></h2>
                 <div class="popover-menu"> <a href="/logout">Logout</a>
                 </div>
             </div>

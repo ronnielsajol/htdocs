@@ -73,8 +73,18 @@ header {
 	position: absolute;
 	width: 100%;
 	border-radius: 5px;
+	opacity: 0;
+	transition: opacity 1s ease;
 }
 
+.popover-menu.show {
+	display: block;
+	opacity: 1;
+}
+
+.fa-caret-left {
+	transition: transform 0.3s ease;
+}
 .popover-menu a {
 	border-radius: 5px;
 	text-decoration: none;
@@ -171,4 +181,48 @@ footer {
 .cart-items {
 	display: flex;
 	gap: 1em;
+}
+
+.dashboard-content table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 20px 0;
+}
+
+.dashboard-content table,
+th,
+td {
+	border: 1px solid #ddd;
+}
+
+.dashboard-content th,
+td {
+	padding: 10px;
+	text-align: left;
+}
+
+.dashboard-content th {
+	background-color: #f4f4f4;
+}
+
+.dashboard-content img {
+	max-width: 100px;
+	height: auto;
+}
+
+.dashboard-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.dashboard-header a {
+	color: white;
+	text-transform: uppercase;
+	font-weight: bold;
+	background-color: #28a745;
+	border: 1px solid #28a745;
+	border-radius: 0.5rem;
+	padding: 0.5rem;
+	text-decoration: none;
 }

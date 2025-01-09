@@ -103,6 +103,11 @@ form {
 	margin-bottom: 1rem;
 }
 
+.success-message {
+	color: #00ff00;
+	font-weight: 600;
+}
+
 label {
 	display: block;
 	margin-bottom: 0.5rem;

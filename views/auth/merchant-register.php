@@ -64,7 +64,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <p>Sell your bricks, one sale at a time!</p>
         </div>
         <?php
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
 
         // Check if there is a login message in session
         if (isset($_SESSION['login_message'])) {

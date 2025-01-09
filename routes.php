@@ -6,6 +6,7 @@ require_once __DIR__ . '/controller/MerchantController.php';
 require_once __DIR__ . '/controller/CartController.php';
 require_once __DIR__ . '/middleware/AuthMiddleware.php';
 
+
 // ##################################################
 // ##################################################
 // ##################################################
@@ -51,6 +52,53 @@ get('/merchant/dashboard', function () {
     AuthMiddleware::handleMerchantAuth();
     require 'views/merchant-dashboard.php';
 });
+
+get('/merchant/logout', function () {
+    AuthMiddleware::handleMerchantAuth();
+    require 'views/auth/logout.php';
+});
+
+get('/merchant/products/edit', function () {
+    AuthMiddleware::handleMerchantAuth();
+
+
+    if (!isset($_GET['id'])) {
+        die('Product ID is required to edit the product.');
+    }
+    require 'views/merchant/edit-product.php';
+});
+
+
+// MerchantController Routes
+
+
+get('/merchant/products/add', function () {
+    AuthMiddleware::handleMerchantAuth();
+    require 'views/merchant/add-product.php';
+});
+
+post('/merchant/products/create', function () {
+    AuthMiddleware::handleMerchantAuth();
+    $controller = new MerchantController();
+    $message = $controller->handleProductAdd();
+    echo $message; // Display any errors or success messages
+});
+
+post('/merchant/products/update', function () {
+    AuthMiddleware::handleMerchantAuth();
+    $controller = new MerchantController();
+    $message = $controller->handleProductUpdate();
+    echo $message; // Display any errors or success messages
+});
+
+post('/merchant/products/delete', function () {
+    AuthMiddleware::handleMerchantAuth();
+    $controller = new MerchantController();
+    $message = $controller->handleProductDelete();
+    echo $message;
+});
+
+
 
 // Auth routes
 post('/login', function () {
@@ -103,10 +151,33 @@ post('/cart/remove', function () {
     echo json_encode($response);
 });
 
-// ##################################################
-// ##################################################
-// ##################################################
-// any can be used for GETs or POSTs
+
+get('/seed-database', function () {
+    // Optional: Add some kind of protection to ensure this is not exposed in production
+    if ($_SERVER['REMOTE_ADDR'] !== '127.0.0.1') { // Allow only local access
+        header('HTTP/1.0 403 Forbidden');
+        echo 'Access denied.';
+        exit();
+    }
+
+    require_once __DIR__ . 'includes/database-seeder.php'; // Include the seeder file
+    echo 'Database seeding completed.';
+});
+
+get('/seed-products', function () {
+    $merchantId = $_GET['merchant_id'] ?? null;
+    $productCount = $_GET['product_count'] ?? null;
+
+    if (!$merchantId || !$productCount) {
+        echo "Please provide both 'merchant_id' and 'product_count' as query parameters.";
+        return;
+    }
+    require_once __DIR__ . '/model/Config.php';
+    require_once __DIR__ . '/includes/merchant-seeder.php';
+
+    seedProductsForMerchant($conn, $merchantId, $productCount);
+});
+
 
 // For GET or POST
 // The 404.php which is inside the views folder will be called

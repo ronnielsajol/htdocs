@@ -17,7 +17,17 @@ document.addEventListener("DOMContentLoaded", function () {
 				}),
 			})
 				.then((response) => response.json())
-				.then((data) => console.log(data))
+				.then((data) => {
+					if (data.success) {
+						Toastify({
+							text: "Item added to cart!",
+							className: "toast-success",
+							gravity: "bottom",
+						}).showToast();
+					} else {
+						alert(data.message); // Show the failure message if there is one
+					}
+				})
 				.catch((error) => console.error("Error:", error));
 		});
 	});
@@ -71,6 +81,8 @@ document.addEventListener("DOMContentLoaded", function () {
 			const currentQuantity = parseInt(input.value, 10);
 			if (currentQuantity > 1) {
 				updateQuantity(currentQuantity - 1);
+			} else if (currentQuantity == 1) {
+				removeFromCart(item.dataset.productId);
 			}
 		});
 
@@ -88,42 +100,45 @@ document.addEventListener("DOMContentLoaded", function () {
 		button.addEventListener("click", function () {
 			const productId = this.dataset.productId;
 
-			fetch("/cart/remove", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					product_id: productId,
-				}),
-			})
-				.then((response) => {
-					// Check if the response is OK (status 200–299)
-					if (!response.ok) {
-						throw new Error(`HTTP error! Status: ${response.status}`);
-					}
-					return response.json(); // Parse response only if it's valid JSON
-				})
-				.then((data) => {
-					if (data.success) {
-						// Remove item from DOM without reload
-						const cartItem = document.querySelector(`.cart-item[data-product-id="${productId}"]`);
-						if (cartItem) {
-							cartItem.remove();
-
-							updateCartTotal();
-						}
-					} else {
-						alert(data.message || "Error removing item from cart");
-					}
-				})
-				.catch((error) => {
-					console.error("Error:", error);
-					alert("Something went wrong. Please try again.");
-				});
+			removeFromCart(productId);
 		});
 	});
 });
+
+function removeFromCart(productId) {
+	fetch("/cart/remove", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({
+			product_id: productId,
+		}),
+	})
+		.then((response) => {
+			// Check if the response is OK (status 200–299)
+			if (!response.ok) {
+				throw new Error(`HTTP error! Status: ${response.status}`);
+			}
+			return response.json(); // Parse response only if it's valid JSON
+		})
+		.then((data) => {
+			if (data.success) {
+				// Remove item from DOM without reload
+				const cartItem = document.querySelector(`.cart-item[data-product-id="${productId}"]`);
+				if (cartItem) {
+					cartItem.remove();
+					updateCartTotal(); // You can keep this function for updating the cart's total amount
+				}
+			} else {
+				alert(data.message || "Error removing item from cart");
+			}
+		})
+		.catch((error) => {
+			console.error("Error:", error);
+			alert("Something went wrong. Please try again.");
+		});
+}
 
 function updateCartTotal() {
 	let total = 0;
@@ -161,6 +176,12 @@ function updateCartTotal() {
 	const totalElement = document.querySelector(".cart-total");
 	if (totalElement) {
 		totalElement.textContent = `₱${total.toFixed(2)}`;
+		Toastify({
+			text: "Total price updated!",
+			className: "toast-update",
+			gravity: "bottom",
+			offset: { y: 50 },
+		}).showToast();
 	} else {
 		console.error("Total element not found in the DOM.");
 	}

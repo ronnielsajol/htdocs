@@ -23,46 +23,56 @@ if (!empty($cart_items)) {
 include 'shared/header.php';
 ?>
 
-<main class="cart-page">
-    <h2>Your Shopping Cart</h2>
-    <div class="cart-items">
-        <?php if (empty($cart_items)): ?>
-            <p>Your cart is empty.</p>
-        <?php else: ?>
-            <?php foreach ($cart_items as $item): ?>
-                <div class="cart-item" data-product-id="<?php echo $item['product_id']; ?>">
-                    <img src="<?php echo htmlspecialchars($item['image']); ?>"
-                        alt="<?php echo htmlspecialchars($item['name']); ?>"
-                        class="item-image">
-                    <div class="item-details">
-                        <h3><?php echo htmlspecialchars($item['name']); ?></h3>
-                        <p class="item-price">₱<?php echo number_format($item['price'], 2); ?></p>
-                        <div class="item-quantity">
-                            <label for="quantity-<?php echo $item['product_id']; ?>">Quantity</label>
-                            <button class="decrease">-</button>
-                            <input type="number"
-                                id="quantity-<?php echo $item['product_id']; ?>"
-                                name="quantity"
-                                value="<?php echo $item['quantity']; ?>"
-                                min="1"
-                                max="10"
-                                class="quantity-input">
-                            <button class="increase">+</button>
-                        </div>
-                        <button class="remove-item"
-                            data-product-id="<?php echo $item['product_id']; ?>">
-                            Remove
-                        </button>
-                    </div>
-                </div>
-            <?php endforeach; ?>
+<head>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
-        <?php endif; ?>
-    </div>
-    <div class="cart-summary">
-        <p>Total: <span class="cart-total">₱<?php echo number_format($cart_total, 2); ?></span></p>
-        <button class="checkout-btn" <?php echo empty($cart_items) ? 'disabled' : ''; ?>>Proceed to Checkout</button>
-    </div>
-</main>
+</head>
+
+
+<body>
+    <main class="cart-page">
+        <h2>Your Shopping Cart</h2>
+        <div class="cart-items">
+            <?php if (empty($cart_items)): ?>
+                <p>Your cart is empty.</p>
+            <?php else: ?>
+                <?php foreach ($cart_items as $item): ?>
+                    <div class="cart-item" data-product-id="<?php echo $item['product_id']; ?>">
+                        <img src="<?php echo htmlspecialchars($item['image']); ?>"
+                            alt="<?php echo htmlspecialchars($item['name']); ?>"
+                            class="item-image">
+                        <div class="item-details">
+                            <h3><?php echo htmlspecialchars($item['name']); ?></h3>
+                            <p class="item-price">₱<?php echo number_format($item['price'], 2); ?></p>
+                            <div class="item-quantity">
+                                <label for="quantity-<?php echo $item['product_id']; ?>">Quantity</label>
+                                <button class="decrease">-</button>
+                                <input type="number"
+                                    id="quantity-<?php echo $item['product_id']; ?>"
+                                    name="quantity"
+                                    value="<?php echo $item['quantity']; ?>"
+                                    min="1"
+                                    max="10"
+                                    class="quantity-input">
+                                <button class="increase">+</button>
+                            </div>
+                            <button class="remove-item"
+                                data-product-id="<?php echo $item['product_id']; ?>">
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+
+            <?php endif; ?>
+        </div>
+        <div class="cart-summary">
+            <p>Total: <span class="cart-total">₱<?php echo number_format($cart_total, 2); ?></span></p>
+            <button class="checkout-btn" <?php echo empty($cart_items) ? 'disabled' : ''; ?>>Proceed to Checkout</button>
+        </div>
+    </main>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+</body>
 
 <?php include 'shared/footer.php'; ?>

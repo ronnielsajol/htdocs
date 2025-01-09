@@ -26,6 +26,11 @@ include 'shared/header.php';
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bungee+Spice&family=Ubuntu:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+
+
 </head>
 
 <body>
@@ -49,6 +54,7 @@ include 'shared/header.php';
             <?php endforeach; ?>
         </div>
     </main>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
 </body>
 <?php include 'shared/footer.php'; ?>

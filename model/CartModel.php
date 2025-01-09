@@ -132,4 +132,23 @@ class CartModel
         $row = $result->fetch_assoc();
         return $row['count'] == 0;
     }
+
+    public function getProductsForMerchant($merchant_id)
+    {
+        $sql = "SELECT * FROM products WHERE merchant_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return [];
+        }
+        $stmt->bind_param("i", $merchant_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $products = [];
+
+        while ($row = $result->fetch_assoc()) {
+            $products[] = $row;
+        }
+
+        return $products;
+    }
 }
