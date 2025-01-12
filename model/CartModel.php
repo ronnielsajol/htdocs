@@ -198,13 +198,16 @@ class CartModel
             // Calculate total price
             $total = $this->getCartTotal($user_id);
 
+            // Generate a unique transaction number
+            $transactionNumber = 'SNS-TN-' . strtoupper(uniqid($user_id . '-'));
+
             // Create an order record
-            $orderSql = "INSERT INTO orders (user_id, total_amount, created_at) VALUES (?, ?, NOW())";
+            $orderSql = "INSERT INTO orders (user_id, total_amount, transaction_number, created_at) VALUES (?, ?, ?, NOW())";
             $orderStmt = $this->conn->prepare($orderSql);
             if (!$orderStmt) {
                 throw new Exception("Failed to prepare order statement: " . $this->conn->error);
             }
-            $orderStmt->bind_param("id", $user_id, $total);
+            $orderStmt->bind_param("ids", $user_id, $total, $transactionNumber);
             $orderStmt->execute();
             $order_id = $this->conn->insert_id; // Get the newly created order ID
 
@@ -236,13 +239,19 @@ class CartModel
 
             $this->conn->commit(); // Commit transaction
 
+
+            header("Location: /order/confirmation?order_id=" . $order_id);
+
             return [
                 'success' => true,
                 'message' => 'Checkout successful',
                 'order_id' => $order_id,
+                'transaction_number' => $transactionNumber,
             ];
         } catch (Exception $e) {
             $this->conn->rollback(); // Rollback transaction on error
+            header("Location: /cart?error=" . urlencode($e->getMessage()));
+
             return [
                 'success' => false,
                 'message' => 'Checkout failed: ' . $e->getMessage(),

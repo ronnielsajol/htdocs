@@ -134,4 +134,31 @@ class UserController
       echo $orders['error']; // Display the error if any
     }
   }
+
+  public function showUserOrders()
+  {
+    if (!isset($_SESSION['user_id'])) {
+      // Redirect to login if the user is not authenticated
+      header('Location: /login');
+      exit;
+    }
+
+    $user_id = $_SESSION['user_id'];
+    require_once __DIR__ . '/../model/orderModel.php';
+
+    $orderModel = new OrderModel();
+    $orders = $orderModel->getUserOrders($user_id);
+    echo "<pre>";
+    echo "User ID: " . htmlspecialchars($user_id) . "\n";
+    print_r($orders);
+    echo "</pre>";
+
+    if (isset($orders['error'])) {
+      echo $orders['error'];
+      exit;
+    }
+
+    // Pass orders to the view
+    require __DIR__ . '/../views/orders-page.php';
+  }
 }

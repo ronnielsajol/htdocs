@@ -1,46 +1,58 @@
 <?php
 
-require_once __DIR__ . '/../helpers/SessionHelper.php';
-require_once __DIR__ . '/../model/UserModel.php';
+require_once __DIR__ . '/../model/Database.php';
+require_once __DIR__ . '/../model/OrderModel.php';
 
-SessionHelper::init();
-$userId = $_SESSION['user_id'] ?? null;
+$user_id = $_SESSION['user_id'] ?? null;
 
-$db = new UserModel();
-$orders = $db->getOrders($userId);
+$oderModel = new OrderModel();
+$orders = $oderModel->getUserOrders($user_id);
 
+
+
+include 'shared/header.php';
 ?>
 
+<!DOCTYPE html>
 <html>
 
-<head></head>
+<head>
+  <title>Your Orders</title>
+</head>
 
 <body>
-  <h1>test</h1>
-  <?php
-  // Example to display the orders
-  if (isset($orders) && count($orders) > 0):
-  ?>
-    <h2>Your Orders</h2>
-    <table>
-      <tr>
-        <th>Order ID</th>
-        <th>Date</th>
-        <th>Status</th>
-        <th>Total</th>
-      </tr>
-      <?php foreach ($orders as $order): ?>
-        <tr>
-          <td><?= $order['order_id'] ?></td>
-          <td><?= $order['created_at'] ?></td>
-          <td><?= $order['status'] ?></td>
-          <td><?= $order['total'] ?></td>
-        </tr>
-      <?php endforeach; ?>
-    </table>
-  <?php else: ?>
-    <p>No orders found.</p>
-  <?php endif; ?>
+  <h1>Your Orders</h1>
+  <main>
+    <?php if (empty($orders)): ?>
+      <p>You have no orders yet.</p>
+    <?php else: ?>
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Transaction Number</th>
+            <th>Total Amount</th>
+            <th>Order Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($orders as $order): ?>
+            <tr>
+              <td><?= htmlspecialchars($order['id']) ?></td>
+              <td><?= htmlspecialchars($order['transaction_number']) ?></td>
+              <td><?= htmlspecialchars(number_format($order['total_amount'], 2)) ?></td>
+              <td><?= htmlspecialchars($order['created_at']) ?></td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    <?php endif; ?>
+  </main>
+
+  <a href="/home">Back to Home</a>
 </body>
+
+<?php include 'shared/footer.php'; ?>
+
 
 </html>

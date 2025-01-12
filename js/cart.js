@@ -157,7 +157,6 @@ function removeFromCart(productId) {
 		}),
 	})
 		.then((response) => {
-			// Check if the response is OK (status 200–299)
 			if (!response.ok) {
 				throw new Error(`HTTP error! Status: ${response.status}`);
 			}

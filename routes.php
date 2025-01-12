@@ -75,6 +75,14 @@ get('/merchant/products/edit', function () {
     require 'views/merchant/edit-product.php';
 });
 
+get('/order/confirmation', function () {
+    include __DIR__ . '/views/order_confirmation.php';
+});
+
+get('/orders', function () {
+    $userController = new UserController();
+    $userController->showUserOrders();
+});
 
 // MerchantController Routes
 
