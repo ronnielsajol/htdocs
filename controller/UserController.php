@@ -91,7 +91,7 @@ class UserController
       $conn = $db->getConnection();
 
       // Get user by username
-      $stmt = $conn->prepare("SELECT id, password FROM users WHERE username = ?");
+      $stmt = $conn->prepare("SELECT id, password, role FROM users WHERE username = ?");
       $stmt->bind_param('s', $username);
       $stmt->execute();
       $result = $stmt->get_result();
@@ -99,7 +99,10 @@ class UserController
       if ($result->num_rows === 1) {
         $user = $result->fetch_assoc();
 
-        if (password_verify($password, $user['password'])) {
+        // Check if the user is a merchant
+        if ($user['role'] === 'merchant') {
+          $message = 'Login not allowed for merchants.';
+        } elseif (password_verify($password, $user['password'])) {
           // Correct password, set session
           $_SESSION['user_id'] = $user['id'];
           $_SESSION['username'] = $username;

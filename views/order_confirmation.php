@@ -36,6 +36,7 @@ include 'shared/header.php';
     <p>Total Amount: <?= htmlspecialchars($orderDetails['total_amount']) ?></p>
     <p>We will process your order shortly.</p>
     <a href="/">Return to Home</a>
+    <a href="/orders">View Orders</a>
   </main>
 </body>
 

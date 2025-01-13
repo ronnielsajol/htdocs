@@ -14,34 +14,27 @@ class CartModel
 
 
     // Get all products
-    public function getProducts($page = 1, $itemsPerPage = 10)
+    public function getProducts($page, $itemsPerPage, $search = '')
     {
-        // Calculate the offset
         $offset = ($page - 1) * $itemsPerPage;
+        $search = "%$search%"; // Use wildcards for the LIKE clause
 
-        // Query to fetch paginated products
-        $sql = "SELECT * FROM products LIMIT ? OFFSET ?";
+        $sql = "SELECT SQL_CALC_FOUND_ROWS * FROM products WHERE name LIKE ? LIMIT ?, ?";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("ii", $itemsPerPage, $offset);
+        $stmt->bind_param("sii", $search, $offset, $itemsPerPage);
         $stmt->execute();
-        $result = $stmt->get_result();
 
+        $result = $stmt->get_result();
         $products = [];
-        if ($result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $products[] = $row;
-            }
+        while ($row = $result->fetch_assoc()) {
+            $products[] = $row;
         }
 
-        // Get total product count for pagination
-        $countSql = "SELECT COUNT(*) as total FROM products";
-        $countResult = $this->conn->query($countSql);
-        $totalProducts = $countResult->fetch_assoc()['total'];
+        // Get total products count
+        $totalResult = $this->conn->query("SELECT FOUND_ROWS() as total");
+        $totalProducts = $totalResult->fetch_assoc()['total'];
 
-        return [
-            'products' => $products,
-            'totalProducts' => $totalProducts,
-        ];
+        return ['products' => $products, 'totalProducts' => $totalProducts];
     }
 
 

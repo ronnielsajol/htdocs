@@ -87,7 +87,7 @@ body {
 	margin-bottom: 1.5rem;
 }
 
-form {
+.login-form form {
 	width: 100%;
 	max-width: 400px;
 	display: flex;
@@ -115,7 +115,7 @@ input {
 	border-radius: 10px;
 }
 
-button {
+.login-form button {
 	padding: 0.75rem;
 	background: linear-gradient(0deg, rgba(255, 91, 15, 0.95) 0%, rgba(255, 225, 0, 0.9) 100%);
 	border: none;

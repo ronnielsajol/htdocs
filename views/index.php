@@ -8,8 +8,10 @@ $db = new CartModel();
 // Get current page from query parameters
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $itemsPerPage = 40; // Define the number of products per page
+$search = $_GET['search'] ?? ''; // Get search query or default to an empty string
 
-$productData = $db->getProducts($page, $itemsPerPage);
+
+$productData = $db->getProducts($page, $itemsPerPage, $search);
 
 $products = $productData['products'];
 $totalProducts = $productData['totalProducts'];
@@ -30,6 +32,7 @@ include 'shared/header.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="/css/login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -45,6 +48,11 @@ include 'shared/header.php';
 <body>
 
     <main class="product-container">
+        <form method="GET" action="" class="search-form">
+            <input type="text" name="search" placeholder="Search products..."
+                value="<?php echo htmlspecialchars($_GET['search'] ?? ''); ?>">
+            <button type="submit" class="search-btn"><i class="fa fa-search" aria-hidden="true"></i></button>
+        </form>
         <div class="product-grid">
             <?php foreach ($products as $product): ?>
                 <div class="item-card">
@@ -63,22 +71,22 @@ include 'shared/header.php';
             <?php endforeach; ?>
         </div>
         <div class="pagination">
-            <a href="?page=<?php echo max(1, $page - 1); ?>"
-                <?php echo $page === 1 ? 'disabled' : ''; ?>
-                class="pagination-btn <?php echo $page === 1 ? 'disabled' : ''; ?>"
-                <?php echo $page === 1 ? 'tabindex="-1" aria-disabled="true"' : ''; ?>>
+            <a href="?page=<?php echo max(1, $page - 1); ?>&search=<?php echo urlencode($search); ?>"
+                class="pagination-btn <?php echo $page === 1 ? 'disabled' : ''; ?>">
                 Previous
             </a>
 
             <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                <a href="?page=<?php echo $i; ?>" class="pagination-btn <?php echo $i === $page ? 'active' : ''; ?>">
+                <a href="?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>"
+                    class="pagination-btn <?php echo $i === $page ? 'active' : ''; ?>">
                     <?php echo $i; ?>
                 </a>
             <?php endfor; ?>
 
-            <?php if ($page < $totalPages): ?>
-                <a href="?page=<?php echo $page + 1; ?>" class="pagination-btn">Next</a>
-            <?php endif; ?>
+            <a href="?page=<?php echo min($totalPages, $page + 1); ?>&search=<?php echo urlencode($search); ?>"
+                class="pagination-btn <?php echo $page === $totalPages ? 'disabled' : ''; ?>">
+                Next
+            </a>
         </div>
     </main>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
