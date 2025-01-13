@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+	fetchCartItemCount();
 	// Add to cart
 	document.querySelectorAll(".add-to-cart-btn").forEach((button) => {
 		button.addEventListener("click", function () {
@@ -24,6 +25,8 @@ document.addEventListener("DOMContentLoaded", function () {
 							className: "toast-success",
 							gravity: "bottom",
 						}).showToast();
+
+						fetchCartItemCount();
 					} else {
 						alert(data.message); // Show the failure message if there is one
 					}
@@ -57,8 +60,9 @@ document.addEventListener("DOMContentLoaded", function () {
 					if (data.success) {
 						// Update the input value with the new quantity
 						input.value = newQuantity;
-						// Optionally, update the total without reloading
+
 						updateCartTotal();
+						fetchCartItemCount();
 					} else {
 						alert("Error updating cart");
 					}
@@ -70,6 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			const newQuantity = parseInt(this.value, 10);
 			if (newQuantity >= 1 && newQuantity <= 10) {
 				updateQuantity(newQuantity);
+				fetchCartItemCount();
 			} else {
 				alert("Quantity must be between 1 and 10");
 				this.value = Math.min(Math.max(newQuantity, 1), 10); // Reset invalid value
@@ -81,6 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			const currentQuantity = parseInt(input.value, 10);
 			if (currentQuantity > 1) {
 				updateQuantity(currentQuantity - 1);
+				fetchCartItemCount();
 			} else if (currentQuantity == 1) {
 				removeFromCart(item.dataset.productId);
 			}
@@ -170,6 +176,8 @@ function removeFromCart(productId) {
 					cartItem.remove();
 					updateCartTotal(); // You can keep this function for updating the cart's total amount
 				}
+
+				fetchCartItemCount();
 			} else {
 				alert(data.message || "Error removing item from cart");
 			}
@@ -236,4 +244,18 @@ function updateCartTotal() {
 			checkoutBtn.classList.remove("disabled");
 		}
 	}
+}
+
+function fetchCartItemCount() {
+	fetch("/cart/count")
+		.then((response) => response.json())
+		.then((data) => {
+			if (data.count !== undefined) {
+				// Update the cart count in the header
+				document.querySelector(".cart-count").textContent = data.count;
+			} else {
+				console.error("Error fetching cart count:", data);
+			}
+		})
+		.catch((error) => console.error("Error fetching cart item count:", error));
 }

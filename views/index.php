@@ -4,11 +4,20 @@ require_once __DIR__ . '/../model/CartModel.php';
 require_once __DIR__ . '/../helpers/SessionHelper.php';
 
 $db = new CartModel();
-$products = $db->getProducts();
+
+// Get current page from query parameters
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$itemsPerPage = 40; // Define the number of products per page
+
+$productData = $db->getProducts($page, $itemsPerPage);
+
+$products = $productData['products'];
+$totalProducts = $productData['totalProducts'];
+$totalPages = ceil($totalProducts / $itemsPerPage);
+
 
 // Initialize the session
 SessionHelper::init();
-
 // Get the current user's ID
 $user_id = SessionHelper::get('user_id');
 include 'shared/header.php';
@@ -35,7 +44,7 @@ include 'shared/header.php';
 
 <body>
 
-    <main>
+    <main class="product-container">
         <div class="product-grid">
             <?php foreach ($products as $product): ?>
                 <div class="item-card">
@@ -52,6 +61,24 @@ include 'shared/header.php';
                     </button>
                 </div>
             <?php endforeach; ?>
+        </div>
+        <div class="pagination">
+            <a href="?page=<?php echo max(1, $page - 1); ?>"
+                <?php echo $page === 1 ? 'disabled' : ''; ?>
+                class="pagination-btn <?php echo $page === 1 ? 'disabled' : ''; ?>"
+                <?php echo $page === 1 ? 'tabindex="-1" aria-disabled="true"' : ''; ?>>
+                Previous
+            </a>
+
+            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                <a href="?page=<?php echo $i; ?>" class="pagination-btn <?php echo $i === $page ? 'active' : ''; ?>">
+                    <?php echo $i; ?>
+                </a>
+            <?php endfor; ?>
+
+            <?php if ($page < $totalPages): ?>
+                <a href="?page=<?php echo $page + 1; ?>" class="pagination-btn">Next</a>
+            <?php endif; ?>
         </div>
     </main>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>

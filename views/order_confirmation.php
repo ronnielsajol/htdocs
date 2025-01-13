@@ -30,11 +30,13 @@ include 'shared/header.php';
 </head>
 
 <body>
-  <h1>Thank you for your order!</h1>
-  <p>Order Number: <?= htmlspecialchars($orderDetails['transaction_number']) ?></p>
-  <p>Total Amount: <?= htmlspecialchars($orderDetails['total_amount']) ?></p>
-  <p>We will process your order shortly.</p>
-  <a href="/">Return to Home</a>
+  <main style="display: flex; flex-direction: column; align-items: center;">
+    <h1>Thank you for your order!</h1>
+    <p>Order Number: <?= htmlspecialchars($orderDetails['transaction_number']) ?></p>
+    <p>Total Amount: <?= htmlspecialchars($orderDetails['total_amount']) ?></p>
+    <p>We will process your order shortly.</p>
+    <a href="/">Return to Home</a>
+  </main>
 </body>
 
 

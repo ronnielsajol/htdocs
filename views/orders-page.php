@@ -5,10 +5,8 @@ require_once __DIR__ . '/../model/OrderModel.php';
 
 $user_id = $_SESSION['user_id'] ?? null;
 
-$oderModel = new OrderModel();
-$orders = $oderModel->getUserOrders($user_id);
-
-
+$orderModel = new OrderModel();
+$orders = $orderModel->getUserOrders($user_id);
 
 include 'shared/header.php';
 ?>
@@ -26,26 +24,45 @@ include 'shared/header.php';
     <?php if (empty($orders)): ?>
       <p>You have no orders yet.</p>
     <?php else: ?>
-      <table border="1">
-        <thead>
-          <tr>
-            <th>Order ID</th>
-            <th>Transaction Number</th>
-            <th>Total Amount</th>
-            <th>Order Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php foreach ($orders as $order): ?>
-            <tr>
-              <td><?= htmlspecialchars($order['id']) ?></td>
-              <td><?= htmlspecialchars($order['transaction_number']) ?></td>
-              <td><?= htmlspecialchars(number_format($order['total_amount'], 2)) ?></td>
-              <td><?= htmlspecialchars($order['created_at']) ?></td>
-            </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
+
+      <?php foreach ($orders as $order): ?>
+        <section class="order">
+          <h2>Order ID: <?= htmlspecialchars($order['id']) ?></h2>
+          <p>Transaction Number: <?= htmlspecialchars($order['transaction_number']) ?></p>
+          <p>Total Amount: <?= htmlspecialchars(number_format($order['total_amount'], 2)) ?></p>
+          <p>Order Date: <?= htmlspecialchars($order['created_at']) ?></p>
+
+          <h3>Products in this Order:</h3>
+          <?php if (empty($order['products'])): ?>
+            <p>No products found for this order.</p>
+          <?php else: ?>
+            <table border="1">
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>Product Name</th>
+                  <th>Quantity</th>
+                  <th>Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php foreach ($order['products'] as $product): ?>
+                  <tr>
+                    <td>
+                      <img src="<?= htmlspecialchars($product['product_image']) ?>" alt="<?= htmlspecialchars($product['product_name']) ?>" style="width: 100px; height: auto;">
+                    </td>
+                    <td><?= htmlspecialchars($product['product_name']) ?></td>
+                    <td><?= htmlspecialchars($product['quantity']) ?></td>
+                    <td><?= htmlspecialchars(number_format($product['price'], 2)) ?></td>
+                  </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          <?php endif; ?>
+        </section>
+        <hr>
+      <?php endforeach; ?>
+
     <?php endif; ?>
   </main>
 
@@ -53,6 +70,5 @@ include 'shared/header.php';
 </body>
 
 <?php include 'shared/footer.php'; ?>
-
 
 </html>

@@ -26,6 +26,8 @@ get('/register', function () {
     require 'views/auth/register.php';
 });
 
+
+
 get('/merchant/login', function () {
     AuthMiddleware::handleGuestOnly();
     require 'views/auth/merchant-login.php';
@@ -148,6 +150,13 @@ post('/merchant/register', function () {
 get('/cart', function () {
     AuthMiddleware::handleUserAuth();
     require 'views/cart.php';
+});
+
+
+get('/cart/count', function () {
+    AuthMiddleware::handleUserAuth();
+    $controller = new CartController();
+    echo json_encode($controller->getCartItemCount());
 });
 
 post('/cart/add', function () {

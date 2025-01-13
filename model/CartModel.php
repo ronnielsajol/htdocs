@@ -14,21 +14,36 @@ class CartModel
 
 
     // Get all products
-    public function getProducts()
+    public function getProducts($page = 1, $itemsPerPage = 10)
     {
-        $sql = "SELECT * FROM products";
-        $result = $this->conn->query($sql);
-        $result = $this->conn->query($sql);
-        $products = [];
+        // Calculate the offset
+        $offset = ($page - 1) * $itemsPerPage;
 
+        // Query to fetch paginated products
+        $sql = "SELECT * FROM products LIMIT ? OFFSET ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ii", $itemsPerPage, $offset);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $products = [];
         if ($result && $result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
                 $products[] = $row;
             }
         }
 
-        return $products;
+        // Get total product count for pagination
+        $countSql = "SELECT COUNT(*) as total FROM products";
+        $countResult = $this->conn->query($countSql);
+        $totalProducts = $countResult->fetch_assoc()['total'];
+
+        return [
+            'products' => $products,
+            'totalProducts' => $totalProducts,
+        ];
     }
+
 
     // Get cart items for a user
     public function getCartItems($user_id)
@@ -52,6 +67,25 @@ class CartModel
         }
 
         return $items;
+    }
+
+    public function getCartItemCount($user_id)
+    {
+        $sql = "SELECT SUM(quantity) AS total_items 
+            FROM cart 
+            WHERE user_id = ?";
+
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return ['error' => 'Failed to prepare statement'];
+        }
+
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+
+        return $row ? (int) $row['total_items'] : 0; // Return 0 if no items
     }
 
     // Add item to cart
