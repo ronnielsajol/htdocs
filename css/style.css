@@ -287,3 +287,34 @@ td {
 	cursor: pointer;
 	background-color: transparent;
 }
+
+.out-of-stock-card {
+	filter: brightness(0.5);
+}
+
+.out-of-stock-card .item-image {
+	filter: brightness(0.5);
+}
+
+.out-of-stock {
+	color: red;
+	font-weight: bold;
+	font-size: 1.1rem;
+}
+
+.add-to-cart-btn:disabled {
+	background-color: #ccc;
+	cursor: not-allowed;
+	color: #666768;
+}
+
+.out-of-stock-warning {
+	border: 2px solid red;
+	background-color: #ffe5e5;
+	padding: 1rem;
+}
+
+.error {
+	color: red;
+	font-size: 0.9em;
+}

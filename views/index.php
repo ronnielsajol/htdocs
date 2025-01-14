@@ -55,17 +55,19 @@ include 'shared/header.php';
         </form>
         <div class="product-grid">
             <?php foreach ($products as $product): ?>
-                <div class="item-card">
+                <div class="item-card <?php echo $product['quantity'] === 0 ? 'out-of-stock-card' : ''; ?>">
                     <img src="<?php echo htmlspecialchars($product['image']); ?>"
                         alt="<?php echo htmlspecialchars($product['name']); ?>"
                         class="item-image"
                         width="260px"
                         height="auto">
                     <h2 class="item-name"><?php echo htmlspecialchars($product['name']); ?></h2>
+                    <p class="out-of-stock"><?php echo $product['quantity'] === 0 ? "OUT OF STOCK" : "" ?></p>
                     <p class="item-price">₱<?php echo number_format($product['price'], 2); ?></p>
                     <button class="add-to-cart-btn"
-                        data-product-id="<?php echo $product['id']; ?>">
-                        Add to Cart
+                        type="button"
+                        data-product-id="<?php echo $product['id']; ?>" <?php echo $product['quantity'] === 0 ? "disabled" : "" ?>>
+                        <?php echo $product["quantity"] === 0 ? "Sold Out" : "Add to Cart" ?>
                     </button>
                 </div>
             <?php endforeach; ?>

@@ -41,25 +41,25 @@ class CartModel
     // Get cart items for a user
     public function getCartItems($user_id)
     {
-        $sql = "SELECT c.*, p.name, p.price, p.image 
-                FROM cart c 
-                JOIN products p ON c.product_id = p.id 
+        $sql = "SELECT 
+                    c.product_id, 
+                    c.quantity, 
+                    p.name, 
+                    p.price, 
+                    p.image, 
+                    p.quantity AS stock 
+                FROM cart c
+                INNER JOIN products p ON c.product_id = p.id
                 WHERE c.user_id = ?";
 
         $stmt = $this->conn->prepare($sql);
         if (!$stmt) {
-            return [];
+            throw new Exception("Failed to prepare statement: " . $this->conn->error);
         }
         $stmt->bind_param("i", $user_id);
         $stmt->execute();
         $result = $stmt->get_result();
-        $items = [];
-
-        while ($row = $result->fetch_assoc()) {
-            $items[] = $row;
-        }
-
-        return $items;
+        return $result->fetch_all(MYSQLI_ASSOC);
     }
 
     public function getCartItemCount($user_id)
@@ -238,13 +238,18 @@ class CartModel
             $orderStmt->execute();
             $order_id = $this->conn->insert_id; // Get the newly created order ID
 
-            // Add cart items to order_items table
+            // Add cart items to order_items table and update product quantity
             $orderItemSql = "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)";
+            $updateQuantitySql = "UPDATE products SET quantity = quantity - ? WHERE id = ? AND quantity >= ?"; // Ensure quantity doesn't go below 0
             $orderItemStmt = $this->conn->prepare($orderItemSql);
-            if (!$orderItemStmt) {
-                throw new Exception("Failed to prepare order item statement: " . $this->conn->error);
+            $updateQuantityStmt = $this->conn->prepare($updateQuantitySql);
+
+            if (!$orderItemStmt || !$updateQuantityStmt) {
+                throw new Exception("Failed to prepare statements: " . $this->conn->error);
             }
+
             foreach ($cartItems as $item) {
+                // Add item to order_items table
                 $orderItemStmt->bind_param(
                     "iiid",
                     $order_id,
@@ -253,6 +258,19 @@ class CartModel
                     $item['price']
                 );
                 $orderItemStmt->execute();
+
+                // Update product quantity
+                $updateQuantityStmt->bind_param(
+                    "iii",
+                    $item['quantity'],
+                    $item['product_id'],
+                    $item['quantity']
+                );
+                $updateQuantityStmt->execute();
+
+                if ($updateQuantityStmt->affected_rows === 0) {
+                    throw new Exception("Insufficient stock for product ID: " . $item['product_id']);
+                }
             }
 
             // Clear the user's cart
@@ -265,7 +283,6 @@ class CartModel
             $clearCartStmt->execute();
 
             $this->conn->commit(); // Commit transaction
-
 
             header("Location: /order/confirmation?order_id=" . $order_id);
 
