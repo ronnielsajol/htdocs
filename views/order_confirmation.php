@@ -9,9 +9,8 @@ if (!$order_id) {
   exit;
 }
 
-// Fetch order details from the database
 $orderModel = new OrderModel();
-$orderDetails = $orderModel->getOrderDetails($order_id); // Create this method if not already implemented
+$orderDetails = $orderModel->getOrderDetails($order_id);
 
 if (!$orderDetails) {
   echo "Order not found.";

@@ -188,6 +188,13 @@ post('/cart/checkout', function () {
     echo json_encode($message);
 });
 
+get('/product', function () {
+    $controller = new CartController();
+    $message = $controller->getProductById();
+
+    require 'views/product-page.php';
+});
+
 
 
 

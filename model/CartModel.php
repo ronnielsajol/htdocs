@@ -14,28 +14,107 @@ class CartModel
 
 
     // Get all products
-    public function getProducts($page, $itemsPerPage, $search = '')
+    public function getProducts($page, $itemsPerPage, $search = '', $sortBy = null, $order = null)
     {
-        $offset = ($page - 1) * $itemsPerPage;
-        $search = "%$search%"; // Use wildcards for the LIKE clause
 
-        $sql = "SELECT SQL_CALC_FOUND_ROWS * FROM products WHERE name LIKE ? LIMIT ?, ?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("sii", $search, $offset, $itemsPerPage);
-        $stmt->execute();
+        $orderClause = '';
 
-        $result = $stmt->get_result();
-        $products = [];
-        while ($row = $result->fetch_assoc()) {
-            $products[] = $row;
+        // Apply sorting if the sort parameters are provided
+        if ($sortBy && $order) {
+            $validSortBy = ['price', 'name'];
+            $validOrder = ['asc', 'desc'];
+
+            // Validate and sanitize sort parameters
+            $sortBy = in_array($sortBy, $validSortBy) ? $sortBy : 'price';
+            $order = in_array($order, $validOrder) ? $order : 'asc';
+
+            // Add the ORDER BY clause to the query
+            $orderClause = " ORDER BY " . $sortBy . " " . $order;
         }
 
-        // Get total products count
-        $totalResult = $this->conn->query("SELECT FOUND_ROWS() as total");
-        $totalProducts = $totalResult->fetch_assoc()['total'];
+        // Calculate pagination offset
+        $offset = ($page - 1) * $itemsPerPage;
 
-        return ['products' => $products, 'totalProducts' => $totalProducts];
+        // Construct the SQL query with optional search and pagination
+        $searchSql = "";
+        if ($search) {
+            $searchSql = " AND (name LIKE ? OR description LIKE ?)";
+        }
+
+        $sql = "SELECT id, name, description, price, image, quantity
+                FROM products
+                WHERE 1=1" . $searchSql . $orderClause . "
+                LIMIT ?, ?";
+
+        $stmt = $this->conn->prepare($sql);
+
+        if ($search) {
+            $searchTerm = '%' . $search . '%';
+            $stmt->bind_param("ssii", $searchTerm, $searchTerm, $offset, $itemsPerPage);
+        } else {
+            $stmt->bind_param("ii", $offset, $itemsPerPage);
+        }
+
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $products = $result->fetch_all(MYSQLI_ASSOC);
+
+        // Get the total count of products for pagination
+        $countSql = "SELECT COUNT(*) FROM products WHERE 1=1" . $searchSql;
+        $countStmt = $this->conn->prepare($countSql);
+        if ($search) {
+            $countStmt->bind_param("ss", $searchTerm, $searchTerm);
+        }
+        $countStmt->execute();
+        $countResult = $countStmt->get_result();
+        $totalProducts = $countResult->fetch_row()[0];
+
+        return [
+            'products' => $products,
+            'totalProducts' => $totalProducts
+        ];
     }
+
+
+    public function getProductById($product_id)
+    {
+        // Query to get the selected product
+        $productSql = "SELECT id, name, description, price, image, quantity FROM products WHERE id = ?";
+        $stmt = $this->conn->prepare($productSql);
+        if (!$stmt) {
+            throw new Exception("Failed to prepare statement: " . $this->conn->error);
+        }
+        $stmt->bind_param("i", $product_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $product = $result->fetch_assoc();
+
+        if (!$product) {
+            return null; // Return null if the product is not found
+        }
+
+        // Query to get the next 5 products
+        $nextProductsSql = "SELECT id, name, price, image, quantity 
+                        FROM products 
+                        WHERE id > ? 
+                        ORDER BY id ASC 
+                        LIMIT 5";
+        $stmtNext = $this->conn->prepare($nextProductsSql);
+        if (!$stmtNext) {
+            throw new Exception("Failed to prepare statement: " . $this->conn->error);
+        }
+        $stmtNext->bind_param("i", $product_id);
+        $stmtNext->execute();
+        $nextProductsResult = $stmtNext->get_result();
+        $nextProducts = $nextProductsResult->fetch_all(MYSQLI_ASSOC);
+
+        return [
+            'product' => $product,
+            'nextProducts' => $nextProducts,
+        ];
+    }
+
 
 
     // Get cart items for a user

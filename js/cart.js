@@ -4,7 +4,10 @@ document.addEventListener("DOMContentLoaded", function () {
 	document.querySelectorAll(".add-to-cart-btn").forEach((button) => {
 		button.addEventListener("click", function () {
 			const productId = this.dataset.productId;
-			const quantity = this.dataset.quantity || 1;
+			console.log(productId);
+			const quantityInput = document.getElementById(`quantity-${productId}`);
+			console.log(quantityInput);
+			const quantity = quantityInput ? quantityInput.value : 1;
 
 			console.log(productId, quantity);
 			fetch("/cart/add", {
