@@ -62,6 +62,7 @@ include 'shared/header.php';
                 <option value="asc" <?php echo isset($_GET['order']) && $_GET['order'] === 'asc' ? 'selected' : ''; ?>>Ascending</option>
                 <option value="desc" <?php echo isset($_GET['order']) && $_GET['order'] === 'desc' ? 'selected' : ''; ?>>Descending</option>
             </select>
+            <button type="button" id="reset-btn">Reset</button>
         </form>
         <form method="GET" action="" class="search-form">
             <input type="text" name="search" placeholder="Search products..."
@@ -112,11 +113,37 @@ include 'shared/header.php';
         // Add event listeners to both sort and order dropdowns
         document.querySelectorAll('select').forEach(function(selectElement) {
             selectElement.addEventListener('change', function() {
-                // Automatically submit the form when an option is selected
-                this.form.submit();
+                // Get the current search value
+                const search = document.querySelector('input[name="search"]').value;
+
+                // Construct the new URL with the search, sort_by, and order parameters
+                const url = new URL(window.location);
+                url.searchParams.set('search', search); // Add or update the search parameter
+                url.searchParams.set('sort_by', this.name === 'sort_by' ? this.value : url.searchParams.get('sort_by'));
+                url.searchParams.set('order', this.name === 'order' ? this.value : url.searchParams.get('order'));
+
+                // Redirect to the new URL with the search, sort_by, and order parameters
+                window.location = url.toString();
             });
         });
+
+
+        document.getElementById('reset-btn').addEventListener('click', function() {
+            // Clear the form fields by resetting the form
+            const form = this.closest('form');
+            form.reset();
+
+            // Remove the search, sort_by, and order query parameters from the URL
+            const url = new URL(window.location);
+            url.searchParams.delete('search');
+            url.searchParams.delete('sort_by');
+            url.searchParams.delete('order');
+
+            // Redirect to the new URL with cleared filters
+            window.location = url.toString();
+        });
     </script>
+
 
 </body>
 <?php include 'shared/footer.php'; ?>

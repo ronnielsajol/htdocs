@@ -57,7 +57,7 @@ include 'shared/header.php';
                                     max="<?php echo $item['stock']; ?>"
                                     class="quantity-input">
                                 <button class="increase">+</button>
-                                <span><?php echo $item['stock'] . ' pieces available' ?></span>
+                                <span><?php echo $item['quantity'] . ' pieces available' ?></span>
                             </div>
                             <?php if ($item['quantity'] > $item['stock']): ?>
                                 <p class="error">Quantity exceeds available stock (<?php echo $item['stock']; ?> available).</p>
