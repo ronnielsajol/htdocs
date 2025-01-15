@@ -26,6 +26,15 @@ get('/register', function () {
     require 'views/auth/register.php';
 });
 
+get('/admin', function () {
+    AuthMiddleware::handleAdminAuth();
+    require 'views/admin/admin-login.php';
+});
+
+get('/admin/login', function () {
+    require 'views/admin/admin-login.php';
+});
+
 
 
 get('/merchant/login', function () {
