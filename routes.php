@@ -28,11 +28,58 @@ get('/register', function () {
 
 get('/admin', function () {
     AuthMiddleware::handleAdminAuth();
-    require 'views/admin/admin-login.php';
+    require 'views/admin/admin-home.php';
 });
 
 get('/admin/login', function () {
     require 'views/admin/admin-login.php';
+});
+
+// Admin Login (POST) - Handle login form submission
+post('/admin/login', function () {
+    AuthMiddleware::handleGuestOnly(); // Ensure guest access only
+    $controller = new AdminController(); // Use AdminController
+    $username = $_POST['username'] ?? null;
+    $password = $_POST['password'] ?? null;
+
+    // Handle login process
+    if ($username && $password) {
+        $message = $controller->login($username, $password); // Login using AdminController
+        if ($message === 'Success') {
+            header('Location: /admin'); // Redirect to admin home on successful login
+            exit();
+        } else {
+            $error = $message; // Handle error message
+        }
+    }
+
+    require_once __DIR__ . '/views/admin/admin-login.php'; // Show the login view with a message
+});
+
+// Admin Register (GET) - Display the registration page
+get('/admin/register', function () {
+    require 'views/admin/admin-register.php';
+});
+
+// Admin Register (POST) - Handle registration form submission
+post('/admin/register', function () {
+    AuthMiddleware::handleGuestOnly(); // Ensure guest access only
+    $controller = new AdminController();
+    $username = $_POST['username'] ?? null;
+    $password = $_POST['password'] ?? null;
+    $email = $_POST['email'] ?? null;
+
+    if ($username && $password && $email) {
+        $message = $controller->register($username, $password, $email);
+        if ($message === 'Success') {
+            header('Location: /admin/login');
+            exit();
+        } else {
+            $error = $message; // Handle error message
+        }
+    }
+
+    require_once __DIR__ . '/views/admin/admin-register.php';
 });
 
 
