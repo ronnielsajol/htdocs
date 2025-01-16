@@ -2,6 +2,9 @@
 
 class AuthMiddleware
 {
+    /**
+     * Start session if not already active
+     */
     private static function startSession()
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -9,41 +12,67 @@ class AuthMiddleware
         }
     }
 
+    /**
+     * Redirect to a given location and exit
+     */
+    private static function redirectTo($location, $message = null)
+    {
+        if ($message) {
+            $_SESSION['login_message'] = $message;
+        }
+        header("Location: $location");
+        exit();
+    }
+
+    /**
+     * Middleware for user authentication
+     */
     public static function handleUserAuth()
     {
         self::startSession();
 
-        // Check if user is not logged in
         if (!isset($_SESSION['user_id'])) {
-            $_SESSION['login_message'] = 'Please login to continue.';
-            header('Location: /login');
-            exit();
+            self::redirectTo('/login', 'Please login to continue.');
         }
     }
 
+    /**
+     * Middleware for merchant authentication
+     */
     public static function handleMerchantAuth()
     {
         self::startSession();
 
-        // Check if merchant is not logged in or role is not merchant
-        if (!isset($_SESSION['merchant_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'merchant') {
-            $_SESSION['login_message'] = 'Please login as a merchant to continue.';
-            header('Location: /merchant/login');
-            exit();
+        if (!isset($_SESSION['merchant_id']) || $_SESSION['role'] !== 'merchant') {
+            self::redirectTo('/merchant/login', 'Please login as a merchant to continue.');
         }
     }
 
+    /**
+     * Middleware for guest-only routes
+     */
     public static function handleGuestOnly()
     {
         self::startSession();
 
-        // Redirect logged-in users away from login/register pages
         if (isset($_SESSION['user_id'])) {
-            header('Location: /dashboard');
-            exit();
-        } else if (isset($_SESSION['merchant_id'])) {
-            header('Location: /merchant/dashboard');
-            exit();
+            self::redirectTo('/');
+        } elseif (isset($_SESSION['merchant_id'])) {
+            self::redirectTo('/merchant/dashboard');
+        } elseif (isset($_SESSION['admin_id'])) {
+            self::redirectTo('/admin/dashboard');
+        }
+    }
+
+    /**
+     * Middleware for admin authentication
+     */
+    public static function handleAdminAuth()
+    {
+        self::startSession();
+
+        if (!isset($_SESSION['admin_id'])) {
+            self::redirectTo('/admin/login', 'Please login as an admin to continue.');
         }
     }
 }

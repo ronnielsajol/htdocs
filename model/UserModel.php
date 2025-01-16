@@ -24,9 +24,9 @@ class UserModel
     $orders = [];
 
     try {
-      // Prepare the query to fetch orders for the logged-in user
+
       $stmt = $this->conn->prepare("SELECT * FROM orders WHERE user_id = ?");
-      $stmt->bind_param("i", $userId); // Use mysqli binding
+      $stmt->bind_param("i", $userId);
 
       $stmt->execute();
       $result = $stmt->get_result();

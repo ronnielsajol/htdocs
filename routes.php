@@ -3,6 +3,7 @@
 require_once __DIR__ . '/router.php';
 require_once __DIR__ . '/controller/UserController.php';
 require_once __DIR__ . '/controller/MerchantController.php';
+require_once __DIR__ . '/controller/AdminController.php';
 require_once __DIR__ . '/controller/CartController.php';
 require_once __DIR__ . '/middleware/AuthMiddleware.php';
 
@@ -25,6 +26,39 @@ get('/register', function () {
     AuthMiddleware::handleGuestOnly();
     require 'views/auth/register.php';
 });
+
+
+
+get('/admin/dashboard', function () {
+    AuthMiddleware::handleAdminAuth();
+    require 'views/admin/admin-dashboard.php';
+});
+
+get('/admin/login', function () {
+    require 'views/admin/admin-login.php';
+});
+
+// Admin Login (POST) - Handle login form submission
+post('/admin/login', function () {
+    AuthMiddleware::handleGuestOnly(); // Ensure guest access only
+    $controller = new adminController();
+    $message = $controller->handleLogin();
+    require_once __DIR__ . '/views/auth/admin-login.php';
+});
+
+// Admin Register (GET) - Display the registration page
+get('/admin/register', function () {
+    require 'views/admin/admin-register.php';
+});
+
+// Admin Register (POST) - Handle registration form submission
+post('/admin/register', function () {
+    AuthMiddleware::handleGuestOnly(); // Ensure guest access only
+    $controller = new AdminController();
+    $message = $controller->handleRegister();
+});
+
+
 
 get('/merchant/login', function () {
     AuthMiddleware::handleGuestOnly();
@@ -75,6 +109,14 @@ get('/merchant/products/edit', function () {
     require 'views/merchant/edit-product.php';
 });
 
+get('/order/confirmation', function () {
+    include __DIR__ . '/views/order_confirmation.php';
+});
+
+get('/orders', function () {
+    $userController = new UserController();
+    $userController->showUserOrders();
+});
 
 // MerchantController Routes
 
@@ -142,6 +184,13 @@ get('/cart', function () {
     require 'views/cart.php';
 });
 
+
+get('/cart/count', function () {
+    AuthMiddleware::handleUserAuth();
+    $controller = new CartController();
+    echo json_encode($controller->getCartItemCount());
+});
+
 post('/cart/add', function () {
     $controller = new CartController();
     echo json_encode($controller->addToCart());
@@ -169,6 +218,13 @@ post('/cart/checkout', function () {
     $controller = new CartController();
     $message = $controller->checkout();
     echo json_encode($message);
+});
+
+get('/product', function () {
+    $controller = new CartController();
+    $message = $controller->getProductById();
+
+    require 'views/product-page.php';
 });
 
 

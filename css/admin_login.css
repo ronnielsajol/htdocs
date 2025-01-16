@@ -10,14 +10,14 @@ body {
 }
 
 .welcome {
-	font-family: "Bungee Spice", sans-serif !important;
+	font-family: "Bungee Spice", sans-serif;
 	font-weight: 400;
 	font-style: normal;
 }
 
-.hero h1,
-.hero h2,
-.hero h3 {
+h1,
+h2,
+h3 {
 	font-family: "Montserrat", sans-serif;
 	color: #2f2f2f;
 }
@@ -54,6 +54,7 @@ body {
 	align-items: center;
 	padding: 2rem;
 	color: #333;
+	text-align: center;
 }
 
 .hero > p {
@@ -77,17 +78,17 @@ body {
 	background-color: #fff;
 }
 
-.hero h1 {
+h1 {
 	font-size: 2.5rem;
 	margin-bottom: 0;
 }
 
-.login-form h2 {
+h2 {
 	font-size: 2rem;
 	margin-bottom: 1.5rem;
 }
 
-.login-form form {
+form {
 	width: 100%;
 	max-width: 400px;
 	display: flex;
@@ -100,6 +101,11 @@ body {
 
 .form-group {
 	margin-bottom: 1rem;
+}
+
+.success-message {
+	color: #00ff00;
+	font-weight: 600;
 }
 
 label {
@@ -115,7 +121,7 @@ input {
 	border-radius: 10px;
 }
 
-.login-form button {
+button {
 	padding: 0.75rem;
 	background: linear-gradient(0deg, rgba(255, 91, 15, 0.95) 0%, rgba(255, 225, 0, 0.9) 100%);
 	border: none;

@@ -1,10 +1,19 @@
 <?php
 
+require_once __DIR__ . '/../../model/CartModel.php';
+
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 $root_path = realpath($_SERVER["DOCUMENT_ROOT"]);
 $project_root = dirname(dirname(dirname(__FILE__)));
 $relative_path = str_replace($root_path, '', $project_root);
 $base_url = rtrim($relative_path, '/');
+
+
+$cartModel = new CartModel();
+$itemCount = $cartModel->getCartItemCount($_SESSION['user_id']);
 ?>
 
 <!DOCTYPE html>
@@ -34,10 +43,14 @@ $base_url = rtrim($relative_path, '/');
             <a href="/cart" class="cart-icon" aria-label="View shopping cart">
                 <i class="fas fa-shopping-cart"></i>
                 <span class="sr-only">Cart</span>
+                <span class="cart-count"><?php echo htmlspecialchars($itemCount); ?></span>
             </a>
             <div class="user-info">
-                <h2 class="greet-user"><?php echo htmlspecialchars($_SESSION['username']); ?><i class="fa-solid fa-caret-left"></i></h2>
-                <div class="popover-menu"> <a href="/logout">Logout</a>
+                <h2 class="greet-user"><?php echo htmlspecialchars($_SESSION['username']); ?><i class="fa-solid fa-caret-left"></i>
+                </h2>
+                <div class="popover-menu">
+                    <a href="/orders">Orders</a>
+                    <a href="/logout">Logout</a>
                 </div>
             </div>
         </section>

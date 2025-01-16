@@ -1,46 +1,74 @@
 <?php
 
-require_once __DIR__ . '/../helpers/SessionHelper.php';
-require_once __DIR__ . '/../model/UserModel.php';
+require_once __DIR__ . '/../model/Database.php';
+require_once __DIR__ . '/../model/OrderModel.php';
 
-SessionHelper::init();
-$userId = $_SESSION['user_id'] ?? null;
+$user_id = $_SESSION['user_id'] ?? null;
 
-$db = new UserModel();
-$orders = $db->getOrders($userId);
+$orderModel = new OrderModel();
+$orders = $orderModel->getUserOrders($user_id);
 
+include 'shared/header.php';
 ?>
 
+<!DOCTYPE html>
 <html>
 
-<head></head>
+<head>
+  <title>Your Orders</title>
+</head>
 
 <body>
-  <h1>test</h1>
-  <?php
-  // Example to display the orders
-  if (isset($orders) && count($orders) > 0):
-  ?>
-    <h2>Your Orders</h2>
-    <table>
-      <tr>
-        <th>Order ID</th>
-        <th>Date</th>
-        <th>Status</th>
-        <th>Total</th>
-      </tr>
+  <h1>Your Orders</h1>
+  <main>
+    <?php if (empty($orders)): ?>
+      <p>You have no orders yet.</p>
+    <?php else: ?>
+
       <?php foreach ($orders as $order): ?>
-        <tr>
-          <td><?= $order['order_id'] ?></td>
-          <td><?= $order['created_at'] ?></td>
-          <td><?= $order['status'] ?></td>
-          <td><?= $order['total'] ?></td>
-        </tr>
+        <section class="order">
+          <h2>Order ID: <?= htmlspecialchars($order['id']) ?></h2>
+          <p>Transaction Number: <?= htmlspecialchars($order['transaction_number']) ?></p>
+          <p>Total Amount: <?= htmlspecialchars(number_format($order['total_amount'], 2)) ?></p>
+          <p>Order Date: <?= htmlspecialchars($order['created_at']) ?></p>
+
+          <h3>Products in this Order:</h3>
+          <?php if (empty($order['products'])): ?>
+            <p>No products found for this order.</p>
+          <?php else: ?>
+            <table border="1">
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>Product Name</th>
+                  <th>Quantity</th>
+                  <th>Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php foreach ($order['products'] as $product): ?>
+                  <tr>
+                    <td>
+                      <img src="<?= htmlspecialchars($product['product_image']) ?>" alt="<?= htmlspecialchars($product['product_name']) ?>" style="width: 100px; height: auto;">
+                    </td>
+                    <td><?= htmlspecialchars($product['product_name']) ?></td>
+                    <td><?= htmlspecialchars($product['quantity']) ?></td>
+                    <td><?= htmlspecialchars(number_format($product['price'], 2)) ?></td>
+                  </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          <?php endif; ?>
+        </section>
+        <hr>
       <?php endforeach; ?>
-    </table>
-  <?php else: ?>
-    <p>No orders found.</p>
-  <?php endif; ?>
+
+    <?php endif; ?>
+  </main>
+
+  <a href="/home">Back to Home</a>
 </body>
+
+<?php include 'shared/footer.php'; ?>
 
 </html>

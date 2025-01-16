@@ -51,7 +51,7 @@ include 'shared/header.php';
         </tfoot>
       </table>
       <form action="/cart/checkout" method="POST">
-        <button type="submit">Proceed to Checkout</button>
+        <button type="submit">Place Order</button>
       </form>
     <?php else: ?>
       <p>Your cart is empty.</p>

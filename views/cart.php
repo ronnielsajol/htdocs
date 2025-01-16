@@ -9,6 +9,7 @@ SessionHelper::init();
 // Get the current user's ID
 $user_id = SessionHelper::get('user_id');
 
+
 // Now you can use $user_id in your cart.php
 $cartModel = new CartModel();
 $cart_items = $cartModel->getCartItems($user_id);
@@ -37,7 +38,8 @@ include 'shared/header.php';
                 <p>Your cart is empty.</p>
             <?php else: ?>
                 <?php foreach ($cart_items as $item): ?>
-                    <div class="cart-item" data-product-id="<?php echo $item['product_id']; ?>">
+                    <div class="cart-item <?php echo $item['quantity'] > $item['stock'] ? 'out-of-stock-warning' : ''; ?>"
+                        data-product-id="<?php echo $item['product_id']; ?>">
                         <img src="<?php echo htmlspecialchars($item['image']); ?>"
                             alt="<?php echo htmlspecialchars($item['name']); ?>"
                             class="item-image">
@@ -52,20 +54,21 @@ include 'shared/header.php';
                                     name="quantity"
                                     value="<?php echo $item['quantity']; ?>"
                                     min="1"
-                                    max="10"
+                                    max="<?php echo $item['stock']; ?>"
                                     class="quantity-input">
                                 <button class="increase">+</button>
+                                <span><?php echo $item['quantity'] . ' pieces available' ?></span>
                             </div>
-                            <button class="remove-item"
-                                data-product-id="<?php echo $item['product_id']; ?>">
-                                Remove
-                            </button>
+                            <?php if ($item['quantity'] > $item['stock']): ?>
+                                <p class="error">Quantity exceeds available stock (<?php echo $item['stock']; ?> available).</p>
+                            <?php endif; ?>
+                            <button class="remove-item" data-product-id="<?php echo $item['product_id']; ?>">Remove</button>
                         </div>
                     </div>
                 <?php endforeach; ?>
-
             <?php endif; ?>
         </div>
+
         <div class="cart-summary">
             <p>Total: <span class="cart-total">₱<?php echo number_format($cart_total, 2); ?></span></p>
             <form action="/cart/summary" method="get">

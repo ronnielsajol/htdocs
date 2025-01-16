@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../model/Database.php';
 require_once __DIR__ . '/../model/CartModel.php';
+require_once __DIR__ . '/../helpers/SessionHelper.php';
 
 class CartController
 {
@@ -124,6 +125,46 @@ class CartController
             return [
                 'success' => false,
                 'message' => $response['message']
+            ];
+        }
+    }
+
+    public function getCartItemCount()
+    {
+        $user_id = SessionHelper::get('user_id'); // Make sure user ID is available
+        if (!$user_id) {
+            return ['count' => 0]; // Return 0 if no user is logged in
+        }
+
+        $cartModel = new CartModel();
+        $cartItems = $cartModel->getCartItemCount($user_id); // Fetch cart item count directly
+        return ['count' => $cartItems]; // Return the total items directly
+    }
+
+    public function getProductById()
+    {
+        // Use $_GET to get the 'product_id' from the URL
+        if (!isset($_GET['product_id'])) {
+            return [
+                'success' => false,
+                'message' => 'Missing product_id'
+            ];
+        }
+
+        $product_id = $_GET['product_id'];
+
+        $db = new CartModel();
+        $product = $db->getProductById($product_id);
+
+        if ($product) {
+            return [
+                'success' => true,
+                'data' => $product
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => 'Product not found'
             ];
         }
     }
