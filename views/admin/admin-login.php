@@ -31,7 +31,7 @@
   <div class="container fade-in">
     <div class="login-form">
       <h2>Admin Login</h2>
-
+      <!-- <pre><?php print_r($_SESSION) ?> </pre> -->
       <form id="loginForm" action="/admin/login" method="POST">
         <div class="form-group">
           <label for="username">Username:</label>

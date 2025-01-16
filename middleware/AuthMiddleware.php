@@ -71,7 +71,7 @@ class AuthMiddleware
     {
         self::startSession();
 
-        if (!isset($_SESSION['admin_id']) || $_SESSION['role'] !== 'admin') {
+        if (!isset($_SESSION['admin_id'])) {
             self::redirectTo('/admin/login', 'Please login as an admin to continue.');
         }
     }
