@@ -16,6 +16,8 @@ if ($role === 'merchant') {
     $redirectUrl = '/merchant/login';
 } elseif ($role === 'user') {
     $redirectUrl = '/';
+} elseif ($role === 'admin') {
+    $redirectUrl = '/admin/login';
 }
 
 // Clear all session data

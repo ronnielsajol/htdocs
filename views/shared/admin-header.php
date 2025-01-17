@@ -26,15 +26,15 @@ $base_url = rtrim($relative_path, '/');
 <body>
   <header class="header">
     <a href="/admin/dashboard" class="logo-link">
-      <h1>Stack and Shop</h1>
+      <h1>Stack and Shop Admin</h1>
     </a>
 
     <section class="header-right">
 
       <div class="user-info">
-        <h2 class="greet-user"><?php echo htmlspecialchars($_SESSION['admin']); ?> <i class="fa-solid fa-caret-left"></i></h2>
+        <h2 class="greet-user"><?php echo htmlspecialchars($_SESSION['admin_username']); ?> <i class="fa-solid fa-caret-left"></i></h2>
         <div class="popover-menu">
-          <a href="/merchant/logout">Logout</a>
+          <a href="/admin/logout">Logout</a>
         </div>
       </div>
     </section>

@@ -96,14 +96,6 @@ body {
 	background-color: #ddd8d8;
 }
 
-main {
-	flex: 1;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	padding: 2rem;
-}
-
 .product-container {
 	display: flex;
 	flex-direction: column;

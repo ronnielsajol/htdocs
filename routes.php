@@ -58,6 +58,10 @@ post('/admin/register', function () {
     $message = $controller->handleRegister();
 });
 
+get('/admin/logout', function () {
+    AuthMiddleware::handleAdminAuth();
+    require 'views/auth/logout.php';
+});
 
 
 get('/merchant/login', function () {
