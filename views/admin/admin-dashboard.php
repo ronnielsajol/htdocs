@@ -43,7 +43,6 @@ $statistics = $model->getStatistics();
             <th>ID</th>
             <th>Username</th>
             <th>Email</th>
-            <th>Role</th>
           </tr>
         </thead>
         <tbody>
@@ -52,7 +51,6 @@ $statistics = $model->getStatistics();
               <td><?= $user['id'] ?></td>
               <td><?= htmlspecialchars($user['username']) ?></td>
               <td><?= htmlspecialchars($user['email']) ?></td>
-              <td><?= htmlspecialchars($user['role']) ?></td>
             </tr>
           <?php endforeach; ?>
         </tbody>

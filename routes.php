@@ -43,7 +43,7 @@ post('/admin/login', function () {
     AuthMiddleware::handleGuestOnly(); // Ensure guest access only
     $controller = new adminController();
     $message = $controller->handleLogin();
-    require_once __DIR__ . '/views/auth/admin-login.php';
+    require_once __DIR__ . '/views/admin/admin-login.php';
 });
 
 // Admin Register (GET) - Display the registration page

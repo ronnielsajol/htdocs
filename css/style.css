@@ -2,11 +2,12 @@
 	box-sizing: border-box;
 	margin: 0;
 	padding: 0;
+	font-family: "Poppins", serif;
 }
 
 body {
 	font-family: "Roboto", sans-serif;
-	background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+	background-image: white;
 	line-height: 1.6;
 	margin: 0;
 	padding: 0;
@@ -27,13 +28,16 @@ body {
 	display: flex;
 	justify-content: space-between;
 	z-index: 10;
-	background-color: #cbccd0;
+	background-color: white;
 	color: #fff;
 	text-align: center;
-	padding: 0.2rem 1rem;
 }
 .header h1 {
 	font-family: "Bungee Spice", sans-serif;
+}
+
+.header-right * {
+	height: auto;
 }
 
 .logo-link {
@@ -46,19 +50,54 @@ body {
 }
 
 .greet-user {
-	color: whitesmoke;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: black;
+}
+
+.fa-user {
+	font-size: 1rem;
+	font-weight: bolder;
 }
 
 .cart-icon {
+	position: relative;
 	margin-right: 1rem;
 }
 
 .cart-icon i {
-	font-size: 1.5rem;
-	margin-right: 0.5rem;
+	font-size: 2.15rem;
+}
+
+.cart-count {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	top: -15%;
+	right: -15%;
+	position: absolute;
+	background-color: white;
+	color: #551a8b;
+	padding: 0.4rem;
+	border-radius: 100%;
+	height: 1.5rem;
+	width: 1.5rem;
+	text-align: center;
+	font-weight: 700;
+}
+
+.cart-icon:active {
+	color: white;
+}
+
+.cart-icon:active .cart-count {
+	background-color: #551a8b;
+	color: white;
 }
 
 .user-info {
+	height: 100%;
 	position: relative;
 }
 
@@ -81,9 +120,6 @@ body {
 	opacity: 1;
 }
 
-.fa-caret-left {
-	transition: transform 0.3s ease;
-}
 .popover-menu a {
 	border-radius: 5px;
 	text-decoration: none;
@@ -150,6 +186,31 @@ footer {
 	color: #fff;
 	text-align: center;
 	padding: 1rem;
+}
+
+.search-forms {
+	display: flex;
+	width: 100%;
+	justify-content: center;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 1rem;
+	position: relative;
+}
+
+.pagination-summary {
+	position: absolute;
+	left: 2.5%;
+}
+
+.filter-form {
+	position: absolute;
+	right: 2.5%;
+}
+
+.search-form {
+	width: 40%;
+	position: relative;
 }
 
 .product-grid {
@@ -258,16 +319,12 @@ td {
 	pointer-events: none;
 }
 
-.search-form {
-	position: relative;
-}
-
 .search-btn {
 	position: absolute;
 	border: none;
 	background: transparent;
 	top: 30%;
-	right: 5%;
+	right: 2.5%;
 }
 
 .search-btn i {

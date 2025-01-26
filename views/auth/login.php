@@ -10,20 +10,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bungee+Spice&family=Ubuntu:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bungee+Spice&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 </head>
 
 <body>
-    <div class="container fade-in">
+    <div class="container">
         <div class="hero">
+            <div class="hero-slider"></div>
             <img src="/assets/images/hero.png" alt="SNS" class="hero-image">
             <h1 class="welcome">Welcome to Stack and Shop</h1>
             <p>Build your imagination, one brick at a time!</p>
         </div>
-        <div class="login-form">
-            <h2>Login</h2>
+        <div class="login-container">
 
-            <form id="loginForm" action="/login" method="POST">
+            <form id="loginForm" class="login-form" action="/login" method="POST">
+                <h2 class="login">Login</h2>
                 <div class="form-group">
                     <label for="username">Username:</label>
                     <input type="text" id="username" name="username" required>
@@ -33,10 +34,11 @@
                     <input type="password" id="password" name="password" required>
                 </div>
                 <button type="submit">Login</button>
+                <div class="register">
+                    <p>Don't have an account? <a href="/register">Register</a></p>
+                </div>
             </form>
-            <div class="register">
-                <p>Don't have an account? <a href="/register">Register</a></p>
-            </div>
+
             <?php
 
             // Check if there is a login message in session
@@ -65,7 +67,7 @@
 
         </div>
     </div>
-    <script src="script.js"></script>
 </body>
+<script src="../../js/login-animation.js" type="module"></script>
 
 </html>
