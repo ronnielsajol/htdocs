@@ -23,7 +23,7 @@
         </div>
         <div class="login-container">
 
-            <form id="loginForm" class="login-form" action="/login" method="POST">
+            <form id="loginForm" class="login-form">
                 <h2 class="login">Login</h2>
                 <div class="form-group">
                     <label for="username">Username:</label>
@@ -37,32 +37,34 @@
                 <div class="register">
                     <p>Don't have an account? <a href="/register">Register</a></p>
                 </div>
+                <div id="login-error-message" class="login-error-message" style="display: none;"></div>
+
+                <?php
+
+                // Check if there is a login message in session
+                if (isset($_SESSION['login_message'])) {
+                    $loginMessage = $_SESSION['login_message'];
+                    unset($_SESSION['login_message']); // Clear the message after displaying it
+                }
+
+                // Check if there is a registration success message in session
+                if (isset($_SESSION['register_success'])) {
+                    $registerSuccessMessage = $_SESSION['register_success'];
+                    unset($_SESSION['register_success']); // Clear the message after displaying it
+                }
+
+                // Display the login error message (if any)
+                if (!empty($loginMessage)): ?>
+                <?php endif; ?>
+
+                <?php
+                // Display the registration success message (if any)
+                if (!empty($registerSuccessMessage)): ?>
+                    <div class="login-success-message" id="login-success-message"><?= htmlspecialchars($registerSuccessMessage) ?></div>
+                <?php endif; ?>
             </form>
 
-            <?php
 
-            // Check if there is a login message in session
-            if (isset($_SESSION['login_message'])) {
-                $loginMessage = $_SESSION['login_message'];
-                unset($_SESSION['login_message']); // Clear the message after displaying it
-            }
-
-            // Check if there is a registration success message in session
-            if (isset($_SESSION['register_success'])) {
-                $registerSuccessMessage = $_SESSION['register_success'];
-                unset($_SESSION['register_success']); // Clear the message after displaying it
-            }
-
-            // Display the login error message (if any)
-            if (!empty($loginMessage)): ?>
-                <div class="error-message"><?= htmlspecialchars($loginMessage) ?></div>
-            <?php endif; ?>
-
-            <?php
-            // Display the registration success message (if any)
-            if (!empty($registerSuccessMessage)): ?>
-                <div class="success-message"><?= htmlspecialchars($registerSuccessMessage) ?></div>
-            <?php endif; ?>
 
 
         </div>

@@ -142,9 +142,10 @@ button:hover {
 	background-color: #ffd700;
 }
 
-.error-message {
+.login-error-message {
 	color: #ff0000;
-	margin-top: 1rem;
+	margin-top: 0.5rem;
+	text-align: center;
 }
 
 .register p {

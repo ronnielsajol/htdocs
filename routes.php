@@ -157,8 +157,7 @@ post('/merchant/products/delete', function () {
 post('/login', function () {
     AuthMiddleware::handleGuestOnly();
     $controller = new UserController();
-    $message = $controller->handleLogin();
-    require_once __DIR__ . '/views/auth/login.php';
+    $controller->handleLogin();
 });
 
 post('/register', function () {
