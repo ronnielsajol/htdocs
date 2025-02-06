@@ -1,27 +1,22 @@
 <?php
 
+require_once './utils/JWTHandler.php';
+
 class AuthMiddleware
 {
     /**
-     * Start session if not already active
+     * Get the token from the Authorization header
      */
-    private static function startSession()
+    private static function getTokenFromHeader()
     {
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            session_start();
-        }
-    }
+        $headers = getallheaders();
+        error_log("Headers: " . print_r($headers, true));  // Log all headers for debugging
 
-    /**
-     * Redirect to a given location and exit
-     */
-    private static function redirectTo($location, $message = null)
-    {
-        if ($message) {
-            $_SESSION['login_message'] = $message;
+        if (!isset($headers['Authorization'])) {
+            return null;
         }
-        header("Location: $location");
-        exit();
+
+        return str_replace("Bearer ", "", $headers['Authorization']);
     }
 
     /**
@@ -29,10 +24,27 @@ class AuthMiddleware
      */
     public static function handleUserAuth()
     {
-        self::startSession();
+        $token = self::getTokenFromHeader();
 
-        if (!isset($_SESSION['user_id'])) {
-            self::redirectTo('/', 'Please login to continue.');
+        if (!$token) {
+            http_response_code(401);
+            echo json_encode(["error" => "Unauthorized: No token provided."]);
+            exit();
+        }
+
+        try {
+            $decoded = JWTHandler::validateToken($token);
+
+            if (!$decoded || !isset($decoded->user_id)) {
+                throw new Exception("Invalid token.");
+            }
+
+            // Attach user data to the request (optional)
+            $_REQUEST['user'] = $decoded;
+        } catch (Exception $e) {
+            http_response_code(401);
+            echo json_encode(["error" => "Unauthorized: " . $e->getMessage()]);
+            exit();
         }
     }
 
@@ -41,10 +53,26 @@ class AuthMiddleware
      */
     public static function handleMerchantAuth()
     {
-        self::startSession();
+        $token = self::getTokenFromHeader();
 
-        if (!isset($_SESSION['merchant_id']) || $_SESSION['role'] !== 'merchant') {
-            self::redirectTo('/merchant/login', 'Please login as a merchant to continue.');
+        if (!$token) {
+            http_response_code(401);
+            echo json_encode(["error" => "Unauthorized: No token provided."]);
+            exit();
+        }
+
+        try {
+            $decoded = JWTHandler::validateToken($token);
+
+            if (!$decoded || !isset($decoded->merchant_id) || $decoded->role !== 'merchant') {
+                throw new Exception("Unauthorized: Invalid merchant token.");
+            }
+
+            $_REQUEST['merchant'] = $decoded;
+        } catch (Exception $e) {
+            http_response_code(401);
+            echo json_encode(["error" => "Unauthorized: " . $e->getMessage()]);
+            exit();
         }
     }
 
@@ -53,14 +81,20 @@ class AuthMiddleware
      */
     public static function handleGuestOnly()
     {
-        self::startSession();
+        $token = self::getTokenFromHeader();
 
-        if (isset($_SESSION['user_id'])) {
-            self::redirectTo('/');
-        } elseif (isset($_SESSION['merchant_id'])) {
-            self::redirectTo('/merchant/dashboard');
-        } elseif (isset($_SESSION['admin_id'])) {
-            self::redirectTo('/admin/dashboard');
+        if ($token) {
+            try {
+                $decoded = JWTHandler::validateToken($token);
+
+                if (isset($decoded->user_id)) {
+                    http_response_code(403);
+                    echo json_encode(["error" => "Forbidden: Guests only."]);
+                    exit();
+                }
+            } catch (Exception $e) {
+                // If the token is invalid, allow access as a guest.
+            }
         }
     }
 
@@ -69,10 +103,26 @@ class AuthMiddleware
      */
     public static function handleAdminAuth()
     {
-        self::startSession();
+        $token = self::getTokenFromHeader();
 
-        if (!isset($_SESSION['admin_id'])) {
-            self::redirectTo('/admin/login', 'Please login as an admin to continue.');
+        if (!$token) {
+            http_response_code(401);
+            echo json_encode(["error" => "Unauthorized: No token provided."]);
+            exit();
+        }
+
+        try {
+            $decoded = JWTHandler::validateToken($token);
+
+            if (!$decoded || !isset($decoded->admin_id)) {
+                throw new Exception("Unauthorized: Admin access only.");
+            }
+
+            $_REQUEST['admin'] = $decoded;
+        } catch (Exception $e) {
+            http_response_code(401);
+            echo json_encode(["error" => "Unauthorized: " . $e->getMessage()]);
+            exit();
         }
     }
 }

@@ -6,7 +6,8 @@ require_once __DIR__ . '/controller/MerchantController.php';
 require_once __DIR__ . '/controller/AdminController.php';
 require_once __DIR__ . '/controller/CartController.php';
 require_once __DIR__ . '/middleware/AuthMiddleware.php';
-
+require_once __DIR__ . '/model/Database.php';
+require_once __DIR__ . '/model/CartModel.php';
 
 // ##################################################
 // ##################################################
@@ -77,7 +78,37 @@ get('/merchant/register', function () {
 // Protected user routes
 get('/home', function () {
     AuthMiddleware::handleUserAuth();
-    require 'views/index.php';
+    // header("Location: /home");
+    exit();
+});
+
+get('/products', function () {
+    AuthMiddleware::handleUserAuth();
+    header('Content-Type: application/json');
+
+    $db = new CartModel();
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $itemsPerPage = 40;
+    $search = $_GET['search'] ?? '';
+    $sortBy = $_GET['sort_by'] ?? null;
+    $order = $_GET['order'] ?? null;
+
+
+    $productData = $db->getProducts($page, $itemsPerPage, $search, $sortBy, $order);
+
+    $products = $productData['products'];
+    $totalProducts = $productData['totalProducts'];
+    $startItem = ($page - 1) * $itemsPerPage + 1;
+    $endItem = min($page * $itemsPerPage, $totalProducts);
+
+
+    $response = [
+        'products' => $products,
+        'startItem' => $startItem,
+        'endItem' => $endItem,
+        'totalProducts' => $totalProducts,
+    ];
+    echo json_encode($response);
 });
 
 get('/orders', function () {

@@ -2,22 +2,14 @@
 
 require_once __DIR__ . '/../model/Database.php';
 require_once __DIR__ . '/../model/UserModel.php';
+require_once __DIR__ . '/../utils/JWTHandler.php'; // Include JWTHandler
 
 class UserController
 {
-
-  public function __construct()
-  {
-    if (session_status() === PHP_SESSION_NONE) {
-      session_start();
-    }
-  }
   public function handleRegister()
   {
     header('Content-Type: application/json'); // Set JSON header
-    if (session_status() === PHP_SESSION_NONE) {
-      session_start();
-    }
+
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
       echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
       exit;
@@ -50,7 +42,7 @@ class UserController
 
     try {
       if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'redirect' => '/', 'message' => 'Registration successful! You can now log in.']);
+        echo json_encode(['success' => true, 'message' => 'Registration successful! You can now log in.']);
         exit;
       }
     } catch (mysqli_sql_exception $e) {
@@ -70,14 +62,10 @@ class UserController
     }
   }
 
-
-
   public function handleLogin()
   {
     header('Content-Type: application/json'); // Set JSON header
-    if (session_status() === PHP_SESSION_NONE) {
-      session_start();
-    }
+
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
       echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
       exit;
@@ -96,7 +84,7 @@ class UserController
     $db = new Database();
     $conn = $db->getConnection();
 
-    $stmt = $conn->prepare("SELECT id, password, role FROM users WHERE username = ?");
+    $stmt = $conn->prepare("SELECT id, email, password, role FROM users WHERE username = ?");
     $stmt->bind_param('s', $username);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -110,11 +98,11 @@ class UserController
       }
 
       if (password_verify($password, $user['password'])) {
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['username'] = $username;
-        $_SESSION['role'] = $user['role'];
+        // ✅ Generate JWT Token
+        $jwtHandler = new JWTHandler();
+        $token = $jwtHandler->generateToken($user);
 
-        echo json_encode(['success' => true, 'redirect' => '/home']);
+        echo json_encode(['success' => true, 'token' => $token, 'username' => $username, 'redirect' => '/home']);
         exit;
       } else {
         echo json_encode(['success' => false, 'message' => 'Invalid password.']);
@@ -125,7 +113,6 @@ class UserController
       exit;
     }
   }
-
 
   public function showOrders()
   {
@@ -139,28 +126,39 @@ class UserController
 
   public function showUserOrders()
   {
-    if (!isset($_SESSION['user_id'])) {
-      // Redirect to login if the user is not authenticated
-      header('Location: /login');
+    header('Content-Type: application/json');
+
+    // ✅ Get token from Authorization Header
+    $headers = getallheaders();
+    $authHeader = $headers['Authorization'] ?? '';
+
+    if (!$authHeader || !preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+      echo json_encode(['success' => false, 'message' => 'Unauthorized: Missing token']);
       exit;
     }
 
-    $user_id = $_SESSION['user_id'];
+    $token = $matches[1];
+
+    try {
+      // ✅ Validate Token
+      $jwtHandler = new JWTHandler();
+      $decoded = $jwtHandler->validateToken($token);
+      $user_id = $decoded->user_id;
+    } catch (Exception $e) {
+      echo json_encode(['success' => false, 'message' => 'Unauthorized: ' . $e->getMessage()]);
+      exit;
+    }
+
     require_once __DIR__ . '/../model/orderModel.php';
 
     $orderModel = new OrderModel();
     $orders = $orderModel->getUserOrders($user_id);
-    echo "<pre>";
-    echo "User ID: " . htmlspecialchars($user_id) . "\n";
-    print_r($orders);
-    echo "</pre>";
 
     if (isset($orders['error'])) {
-      echo $orders['error'];
+      echo json_encode(['success' => false, 'message' => $orders['error']]);
       exit;
     }
 
-    // Pass orders to the view
-    require __DIR__ . '/../views/orders-page.php';
+    echo json_encode(['success' => true, 'orders' => $orders]);
   }
 }

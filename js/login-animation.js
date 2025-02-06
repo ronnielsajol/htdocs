@@ -28,9 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		try {
 			const response = await fetch("http://localhost/login", {
-				// Change the URL to the login endpoint
-				//http://localhost/login
-				//http://stackandshop.com.mialias.net/login
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -41,7 +38,31 @@ document.addEventListener("DOMContentLoaded", () => {
 			const result = await response.json();
 
 			if (result.success) {
-				window.location.href = result.redirect; // Redirect on success
+				console.log("Success:", result);
+				sessionStorage.setItem("username", result.username);
+				sessionStorage.setItem("token", result.token); // Store token
+				username.textContent = sessionStorage.getItem("username");
+				const token = sessionStorage.getItem("token"); // Get the token
+
+				if (token) {
+					fetch("http://localhost/home", {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+							Authorization: `Bearer ${token}`, // Send the token in the Authorization header
+						},
+					})
+						.then((response) => {
+							if (response.ok) {
+								window.location.href = result.redirect;
+							} else {
+								throw new Error("Unauthorized Access");
+							}
+						}) // Parse the response JSON
+						.catch((error) => console.error("Error:", error));
+				} else {
+					console.error("No token available");
+				}
 			} else {
 				errorMessage.textContent = result.message || "Invalid credentials.";
 				errorMessage.style.display = "block";

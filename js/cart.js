@@ -1,15 +1,13 @@
 document.addEventListener("DOMContentLoaded", function () {
 	fetchCartItemCount();
-	// Add to cart
-	document.querySelectorAll(".add-to-cart-btn").forEach((button) => {
-		button.addEventListener("click", function () {
-			const productId = this.dataset.productId;
-			console.log(productId);
+
+	// Event delegation for add to cart
+	document.body.addEventListener("click", function (event) {
+		if (event.target && event.target.matches(".add-to-cart-btn")) {
+			const productId = event.target.dataset.productId;
 			const quantityInput = document.getElementById(`quantity-${productId}`);
-			console.log(quantityInput);
 			const quantity = quantityInput ? quantityInput.value : 1;
 
-			console.log(productId, quantity);
 			fetch("/cart/add", {
 				method: "POST",
 				headers: {
@@ -35,125 +33,79 @@ document.addEventListener("DOMContentLoaded", function () {
 					}
 				})
 				.catch((error) => console.error("Error:", error));
-		});
+		}
 	});
 
-	// Update quantity
-	document.querySelectorAll(".cart-item").forEach((item) => {
-		const input = item.querySelector(".quantity-input");
-		const decreaseButton = item.querySelector(".decrease");
-		const increaseButton = item.querySelector(".increase");
+	// Event delegation for updating quantity
+	document.body.addEventListener("input", function (event) {
+		if (event.target && event.target.matches(".quantity-input")) {
+			const input = event.target;
+			const newQuantity = parseInt(input.value, 10);
+			const productId = input.closest(".cart-item").dataset.productId;
 
-		const updateQuantity = (newQuantity) => {
-			const productId = item.dataset.productId;
-
-			fetch("/cart/update", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					action: "update",
-					product_id: productId,
-					quantity: newQuantity,
-				}),
-			})
-				.then((response) => response.json())
-				.then((data) => {
-					if (data.success) {
-						// Update the input value with the new quantity
-						input.value = newQuantity;
-
-						updateCartTotal();
-						fetchCartItemCount();
-					} else {
-						alert("Error updating cart");
-					}
-				});
-		};
-
-		// Listener for the input field
-		input.addEventListener("change", function () {
-			const newQuantity = parseInt(this.value, 10);
 			if (newQuantity >= 1 && newQuantity <= 10) {
-				updateQuantity(newQuantity);
-				fetchCartItemCount();
+				updateQuantity(productId, newQuantity);
 			} else {
 				alert("Quantity must be between 1 and 10");
-				this.value = Math.min(Math.max(newQuantity, 1), 10); // Reset invalid value
+				input.value = Math.min(Math.max(newQuantity, 1), 10); // Reset invalid value
 			}
-		});
+		}
+	});
 
-		// Listener for the decrease button
-		decreaseButton.addEventListener("click", () => {
+	// Event delegation for decrease and increase buttons
+	document.body.addEventListener("click", function (event) {
+		if (event.target && event.target.matches(".decrease")) {
+			const input = event.target.closest(".cart-item").querySelector(".quantity-input");
 			const currentQuantity = parseInt(input.value, 10);
 			if (currentQuantity > 1) {
-				updateQuantity(currentQuantity - 1);
-				fetchCartItemCount();
-			} else if (currentQuantity == 1) {
-				removeFromCart(item.dataset.productId);
+				updateQuantity(input.closest(".cart-item").dataset.productId, currentQuantity - 1);
+			} else {
+				removeFromCart(input.closest(".cart-item").dataset.productId);
 			}
-		});
-
-		// Listener for the increase button
-		increaseButton.addEventListener("click", () => {
+		} else if (event.target && event.target.matches(".increase")) {
+			const input = event.target.closest(".cart-item").querySelector(".quantity-input");
 			const currentQuantity = parseInt(input.value, 10);
 			if (currentQuantity < 10) {
-				updateQuantity(currentQuantity + 1);
+				updateQuantity(input.closest(".cart-item").dataset.productId, currentQuantity + 1);
+			}
+		}
+	});
+
+	// Event delegation for remove from cart button
+	document.body.addEventListener("click", function (event) {
+		if (event.target && event.target.matches(".remove-item")) {
+			const productId = event.target.dataset.productId;
+			removeFromCart(productId);
+		}
+	});
+});
+
+function updateQuantity(productId, newQuantity) {
+	fetch("/cart/update", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({
+			action: "update",
+			product_id: productId,
+			quantity: newQuantity,
+		}),
+	})
+		.then((response) => response.json())
+		.then((data) => {
+			if (data.success) {
+				const input = document.querySelector(`.cart-item[data-product-id="${productId}"] .quantity-input`);
+				if (input) {
+					input.value = newQuantity;
+					updateCartTotal();
+					fetchCartItemCount();
+				}
+			} else {
+				alert("Error updating cart");
 			}
 		});
-	});
-
-	// Remove from cart
-	document.querySelectorAll(".remove-item").forEach((button) => {
-		button.addEventListener("click", function () {
-			const productId = this.dataset.productId;
-
-			removeFromCart(productId);
-		});
-	});
-
-	// Checkout
-
-	// const checkoutButton = document.querySelector(".checkout-btn");
-	// if (checkoutButton) {
-	// 	checkoutButton.addEventListener("click", () => {
-	// 		// Collect cart items
-	// 		const cartItems = [];
-	// 		document.querySelectorAll(".cart-item").forEach((item) => {
-	// 			const productId = item.dataset.productId;
-	// 			const quantity = parseInt(item.querySelector(".quantity-input").value, 10);
-	// 			const price = parseFloat(item.querySelector(".item-price").textContent.replace("₱", "").replace(",", "").trim());
-
-	// 			cartItems.push({ product_id: productId, quantity, price });
-	// 		});
-
-	// 		// Send data to backend
-	// 		fetch("/cart/summary", {
-	// 			method: "POST",
-	// 			headers: {
-	// 				"Content-Type": "application/json",
-	// 			},
-	// 			body: JSON.stringify({ cart: cartItems }),
-	// 		})
-	// 			.then((response) => response.json())
-	// 			.then((data) => {
-	// 				if (data.success) {
-	// 					// Redirect to checkout page or show confirmation
-	// 					window.location.href = "/checkout/summary";
-	// 				} else {
-	// 					alert("Error proceeding to checkout: " + data.message);
-	// 				}
-	// 			})
-	// 			.catch((error) => {
-	// 				console.error("Error during checkout:", error);
-	// 				alert("Something went wrong. Please try again.");
-	// 			});
-	// 	});
-	// } else {
-	// 	console.warn("Checkout button not found in the DOM.");
-	// }
-});
+}
 
 function removeFromCart(productId) {
 	fetch("/cart/remove", {
@@ -165,21 +117,14 @@ function removeFromCart(productId) {
 			product_id: productId,
 		}),
 	})
-		.then((response) => {
-			if (!response.ok) {
-				throw new Error(`HTTP error! Status: ${response.status}`);
-			}
-			return response.json(); // Parse response only if it's valid JSON
-		})
+		.then((response) => response.json())
 		.then((data) => {
 			if (data.success) {
-				// Remove item from DOM without reload
 				const cartItem = document.querySelector(`.cart-item[data-product-id="${productId}"]`);
 				if (cartItem) {
 					cartItem.remove();
-					updateCartTotal(); // You can keep this function for updating the cart's total amount
+					updateCartTotal();
 				}
-
 				fetchCartItemCount();
 			} else {
 				alert(data.message || "Error removing item from cart");
@@ -194,36 +139,19 @@ function removeFromCart(productId) {
 function updateCartTotal() {
 	let total = 0;
 
-	// Loop through each cart item to calculate the total
 	document.querySelectorAll(".cart-item").forEach((item) => {
 		const priceElement = item.querySelector(".item-price");
 		const quantityElement = item.querySelector(".quantity-input");
 
-		if (!priceElement || !quantityElement) {
-			console.error("Missing price or quantity element for item:", item);
-			return;
-		}
-
 		const priceText = priceElement.textContent.replace("₱", "").replace(/,/g, "").trim();
-
-		console.log(priceText);
 		const quantityText = quantityElement.value.trim();
 
 		const price = parseInt(priceText);
-		console.log("price:", price);
 		const quantity = parseInt(quantityText, 10);
 
-		if (isNaN(price) || isNaN(quantity)) {
-			console.error("Invalid price or quantity:", { price, quantity, item, priceElement });
-			return;
-		}
-
 		total += price * quantity;
-		console.log(price, quantity);
 	});
-	console.log("Updated Total:", total);
 
-	// Update the total in the DOM
 	const totalElement = document.querySelector(".cart-total");
 	if (totalElement) {
 		totalElement.textContent = `₱${total.toFixed(2)}`;
@@ -233,8 +161,6 @@ function updateCartTotal() {
 			gravity: "bottom",
 			offset: { y: 50 },
 		}).showToast();
-	} else {
-		console.error("Total element not found in the DOM.");
 	}
 
 	const checkoutBtn = document.querySelector(".checkout-btn");
@@ -254,7 +180,6 @@ function fetchCartItemCount() {
 		.then((response) => response.json())
 		.then((data) => {
 			if (data.count !== undefined) {
-				// Update the cart count in the header
 				document.querySelector(".cart-count").textContent = data.count;
 			} else {
 				console.error("Error fetching cart count:", data);
