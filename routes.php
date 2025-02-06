@@ -19,12 +19,12 @@ require_once __DIR__ . '/middleware/AuthMiddleware.php';
 // Guest routes
 get('/', function () {
     AuthMiddleware::handleGuestOnly();
-    require 'views/auth/login.php';
+    require 'views/auth/login.html';
 });
 
 get('/register', function () {
     AuthMiddleware::handleGuestOnly();
-    require 'views/auth/register.php';
+    require 'views/auth/register.html';
 });
 
 

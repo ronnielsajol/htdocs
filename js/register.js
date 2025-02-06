@@ -34,6 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			const result = await response.json();
 
 			if (result.success) {
+				sessionStorage.setItem("registerMessage", result.message);
 				window.location.href = result.redirect; // Redirect on success
 			} else {
 				errorMessage.textContent = result.message || "Invalid credentials.";

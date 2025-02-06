@@ -45,18 +45,7 @@
                 <div id="register-error-message" class="register-error-message" style="display: none;"></div>
 
             </form>
-            <?php
-            if (isset($_SESSION['register_message'])) {
-                $registerMessage = $_SESSION['register_message'];
-                unset($_SESSION['register_message']);
-            }
-
-            if (!empty($registerMessage)): ?>
-                <div class="error-message"><?= htmlspecialchars($registerMessage) ?></div>
-            <?php endif; ?>
-
         </div>
-
     </div>
     <script src="../../js/register.js" type="module"></script>
 </body>

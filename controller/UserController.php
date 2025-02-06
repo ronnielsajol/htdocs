@@ -50,8 +50,7 @@ class UserController
 
     try {
       if ($stmt->execute()) {
-        $_SESSION['register_success'] = 'Registration successful! You can now log in.';
-        echo json_encode(['success' => true, 'redirect' => '/']);
+        echo json_encode(['success' => true, 'redirect' => '/', 'message' => 'Registration successful! You can now log in.']);
         exit;
       }
     } catch (mysqli_sql_exception $e) {

@@ -13,6 +13,12 @@ animate(sequence);
 document.addEventListener("DOMContentLoaded", () => {
 	const loginForm = document.getElementById("loginForm");
 	const errorMessage = document.getElementById("login-error-message");
+	const message = sessionStorage.getItem("registerMessage");
+
+	if (message) {
+		document.getElementById("message-box").innerText = message;
+		sessionStorage.removeItem("registerMessage"); // Remove after showing
+	}
 
 	loginForm.addEventListener("submit", async (e) => {
 		e.preventDefault();
