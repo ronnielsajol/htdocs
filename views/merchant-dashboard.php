@@ -80,6 +80,7 @@ include 'shared/merchant-header.php';
     </main>
 
 
-</body><?php include 'shared/footer.php'; ?>
+</body>
+<?php include 'shared/footer.php'; ?>
 
 </html>

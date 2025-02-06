@@ -46,8 +46,10 @@ $itemCount = $cartModel->getCartItemCount($_SESSION['user_id']);
                 <span class="cart-count"><?php echo htmlspecialchars($itemCount); ?></span>
             </a>
             <div class="user-info">
-                <h2 class="greet-user"><?php echo htmlspecialchars($_SESSION['username']); ?><i class="fa-solid fa-caret-left"></i>
-                </h2>
+                <span class="greet-user">
+                    <i class="fa-regular fa-user"></i>
+                    <h2><?php echo htmlspecialchars($_SESSION['username']); ?></h2>
+                </span>
                 <div class="popover-menu">
                     <a href="/orders">Orders</a>
                     <a href="/logout">Logout</a>

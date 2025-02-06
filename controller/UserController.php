@@ -72,61 +72,58 @@ class UserController
 
   public function handleLogin()
   {
-    $message = '';
-
-    // Check if registration was successful
-    if (isset($_SESSION['register_success'])) {
-      $message = $_SESSION['register_success'];
-      unset($_SESSION['register_success']);
+    header('Content-Type: application/json'); // Set JSON header
+    if (session_status() === PHP_SESSION_NONE) {
+      session_start();
+    }
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+      echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
+      exit;
     }
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-      $username = $_POST['username'];
-      $password = $_POST['password'];
+    $data = json_decode(file_get_contents("php://input"), true);
 
-      // Clean the password to remove any accidental spaces
-      $password = trim($password);
+    if (!isset($data['username']) || !isset($data['password'])) {
+      echo json_encode(['success' => false, 'message' => 'Missing required fields.']);
+      exit;
+    }
 
-      $db = new Database();
-      $conn = $db->getConnection();
+    $username = trim($data['username']);
+    $password = trim($data['password']);
 
-      // Get user by username
-      $stmt = $conn->prepare("SELECT id, password, role FROM users WHERE username = ?");
-      $stmt->bind_param('s', $username);
-      $stmt->execute();
-      $result = $stmt->get_result();
+    $db = new Database();
+    $conn = $db->getConnection();
 
-      if ($result->num_rows === 1) {
-        $user = $result->fetch_assoc();
+    $stmt = $conn->prepare("SELECT id, password, role FROM users WHERE username = ?");
+    $stmt->bind_param('s', $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-        // Check if the user is a merchant
-        if ($user['role'] === 'merchant') {
-          $message = 'Login not allowed for merchants.';
-        } elseif (password_verify($password, $user['password'])) {
-          // Correct password, set session
-          $_SESSION['user_id'] = $user['id'];
-          $_SESSION['username'] = $username;
-          $_SESSION['role'] = $user['role'];
-          // Redirect to the home page
-          header('Location: /home');
-          exit;
-        } else {
-          $message = 'Invalid password.';
-        }
-      } else {
-        $message = 'User not found.';
+    if ($result->num_rows === 1) {
+      $user = $result->fetch_assoc();
+
+      if ($user['role'] === 'merchant') {
+        echo json_encode(['success' => false, 'message' => 'Login not allowed for merchants.']);
+        exit;
       }
 
-      $stmt->close();
+      if (password_verify($password, $user['password'])) {
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['username'] = $username;
+        $_SESSION['role'] = $user['role'];
+
+        echo json_encode(['success' => true, 'redirect' => '/home']);
+        exit;
+      } else {
+        echo json_encode(['success' => false, 'message' => 'Invalid password.']);
+        exit;
+      }
+    } else {
+      echo json_encode(['success' => false, 'message' => 'User not found.']);
+      exit;
     }
-
-    // Store the error message in session for later use
-    $_SESSION['login_message'] = $message;
-
-    // Redirect back to login page with the message
-    header('Location: /');
-    exit;
   }
+
 
   public function showOrders()
   {

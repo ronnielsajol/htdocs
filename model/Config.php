@@ -1,8 +1,8 @@
 <?php
 define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'stack_and_shop');
+define('DB_USER', 'mystackandbd');
+define('DB_PASS', 'TbfqY0hp');
+define('DB_NAME', 'stackandshop');
 
 // Create connection
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);

@@ -293,7 +293,6 @@ class MerchantController
         $db = new Database();
         $conn = $db->getConnection();
 
-        // Handle image upload before inserting product
         $uploader = new FileUploader(__DIR__ . '/../uploads/images');
         $imageFileName = $uploader->upload($_FILES['image'], $merchantId, null); // No product ID yet
 

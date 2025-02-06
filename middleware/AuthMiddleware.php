@@ -32,7 +32,7 @@ class AuthMiddleware
         self::startSession();
 
         if (!isset($_SESSION['user_id'])) {
-            self::redirectTo('/login', 'Please login to continue.');
+            self::redirectTo('/', 'Please login to continue.');
         }
     }
 

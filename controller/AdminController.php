@@ -71,7 +71,7 @@ class AdminController
       $db = new Database();
       $conn = $db->getConnection();
 
-      $stmt = $conn->prepare("SELECT id, username, password FROM users WHERE username = ?");
+      $stmt = $conn->prepare("SELECT id, username, password FROM admin WHERE username = ?");
       $stmt->bind_param('s', $username);
       $stmt->execute();
       $result = $stmt->get_result();

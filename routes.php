@@ -43,7 +43,7 @@ post('/admin/login', function () {
     AuthMiddleware::handleGuestOnly(); // Ensure guest access only
     $controller = new adminController();
     $message = $controller->handleLogin();
-    require_once __DIR__ . '/views/auth/admin-login.php';
+    require_once __DIR__ . '/views/admin/admin-login.php';
 });
 
 // Admin Register (GET) - Display the registration page
@@ -58,6 +58,10 @@ post('/admin/register', function () {
     $message = $controller->handleRegister();
 });
 
+get('/admin/logout', function () {
+    AuthMiddleware::handleAdminAuth();
+    require 'views/auth/logout.php';
+});
 
 
 get('/merchant/login', function () {
@@ -153,8 +157,7 @@ post('/merchant/products/delete', function () {
 post('/login', function () {
     AuthMiddleware::handleGuestOnly();
     $controller = new UserController();
-    $message = $controller->handleLogin();
-    require_once __DIR__ . '/views/auth/login.php';
+    $controller->handleLogin();
 });
 
 post('/register', function () {
@@ -232,29 +235,43 @@ get('/product', function () {
 
 
 get('/seed-database', function () {
-    // Optional: Add some kind of protection to ensure this is not exposed in production
-    if ($_SERVER['REMOTE_ADDR']  !== '127.0.0.1' && $_SERVER['REMOTE_ADDR'] !== '::1') { // Allow only local access
+    $allowed_ips = ['127.0.0.1', '::1', '134.0.10.140'];
+
+    // Resolve domain to IP and add it to allowed list
+    $domain_ip = gethostbyname('stackandshop.com');
+    if ($domain_ip !== 'stackandshop.com') { // Ensure it resolves correctly
+        $allowed_ips[] = $domain_ip;
+    }
+
+    if (!in_array($_SERVER['REMOTE_ADDR'], $allowed_ips)) {
         header('HTTP/1.0 403 Forbidden');
         echo 'Access denied.';
         exit();
     }
 
-    require_once __DIR__ . '/includes/database-seeder.php'; // Include the seeder file
+    require_once __DIR__ . '/includes/database-seeder.php';
     echo 'Database seeding completed.';
 });
 
-
 get('/migrate', function () {
-    // Optional: Add some kind of protection to ensure this is not exposed in production
-    if ($_SERVER['REMOTE_ADDR']  !== '127.0.0.1' && $_SERVER['REMOTE_ADDR'] !== '::1') { // Allow only local access
+    $allowed_ips = ['127.0.0.1', '::1', '134.0.10.140'];
+
+    // Resolve domain to IP and add it to allowed list
+    $domain_ip = gethostbyname('stackandshop.com');
+    if ($domain_ip !== 'stackandshop.com') {
+        $allowed_ips[] = $domain_ip;
+    }
+
+    if (!in_array($_SERVER['REMOTE_ADDR'], $allowed_ips)) {
         header('HTTP/1.0 403 Forbidden');
         echo 'Access denied.';
         exit();
     }
 
-    require_once __DIR__ . '/includes/migrate.php'; // Include the seeder file
-    echo 'migrate completed.';
+    require_once __DIR__ . '/includes/migrate.php';
+    echo 'Migration completed.';
 });
+
 
 get('/seed-products', function () {
     $merchantId = $_GET['merchant_id'] ?? null;
