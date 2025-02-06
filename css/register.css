@@ -1,47 +1,36 @@
 * {
 	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	font-family: "Poppins", sans-serif;
 }
 
 body {
-	font-family: "Roboto", sans-serif;
-	margin: 0;
-	padding: 0;
 	background-color: #f0f0f0;
 }
 
-.welcome {
-	font-family: "Bungee Spice", sans-serif;
+.welcome,
+.register {
+	font-family: "Bungee Spice", sans-serif !important;
 	font-weight: 400;
 	font-style: normal;
 }
 
-h1,
-h2,
-h3 {
+.hero h1,
+.hero h2,
+.hero h3 {
 	font-family: "Montserrat", sans-serif;
 	color: #2f2f2f;
 }
 
 .container {
 	display: flex;
+	overflow: hidden;
 	height: 100vh;
-	opacity: 0;
-}
-
-.fade-in {
-	animation: fadeIn 1s ease-in forwards;
-}
-
-@keyframes fadeIn {
-	from {
-		opacity: 0;
-	}
-	to {
-		opacity: 1;
-	}
 }
 
 .hero {
+	position: relative;
 	flex: 1;
 	background-color: rgb(255, 141, 0);
 	background: linear-gradient(to bottom, #d5dee7 0%, #e8ebf2 50%, #e2e7ed 100%),
@@ -56,6 +45,19 @@ h3 {
 	color: #333;
 }
 
+.hero-slider {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	background-image: url("../assets/images/lego-bg.jpg");
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: 0% 100%;
+}
+
 .hero > p {
 	color: #d02200;
 	font-size: 20px;
@@ -67,7 +69,7 @@ h3 {
 	margin-bottom: 1rem;
 }
 
-.login-form {
+.login-container {
 	flex: 1;
 	display: flex;
 	flex-direction: column;
@@ -75,6 +77,28 @@ h3 {
 	align-items: center;
 	padding: 2rem;
 	background-color: #fff;
+	background-image: url("../assets/images/lego-bg.jpg");
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+.login-form {
+	background-color: #fff;
+	display: inline-flex;
+	gap: 0.25rem;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	max-width: 400px;
+	display: flex;
+	flex-direction: column;
+	border: 1px solid rgba(0, 0, 0, 0.189);
+	padding: 2rem 2.5rem 2.5rem 2.5rem;
+	border-radius: 10px;
+	box-shadow: 14px 14px 114px -4px rgba(0, 0, 0, 0.34);
+	opacity: 0;
+	transform: translateY(20px);
 }
 
 h1 {
@@ -130,9 +154,10 @@ button:hover {
 	background-color: #ffd700;
 }
 
-.error-message {
+.register-error-message {
 	color: #ff0000;
-	margin-top: 1rem;
+	margin-top: 0.5rem;
+	text-align: center;
 }
 
 /* Accessibility improvements */

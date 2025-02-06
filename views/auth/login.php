@@ -22,7 +22,6 @@
             <p>Build your imagination, one brick at a time!</p>
         </div>
         <div class="login-container">
-
             <form id="loginForm" class="login-form">
                 <h2 class="login">Login</h2>
                 <div class="form-group">

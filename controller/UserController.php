@@ -14,58 +14,61 @@ class UserController
   }
   public function handleRegister()
   {
+    header('Content-Type: application/json'); // Set JSON header
+    if (session_status() === PHP_SESSION_NONE) {
+      session_start();
+    }
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+      echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
+      exit;
+    }
+
+    $data = json_decode(file_get_contents("php://input"), true);
+
+    if (!isset($data['username'], $data['email'], $data['password'], $data['confirm_password'])) {
+      echo json_encode(['success' => false, 'message' => 'Missing required fields.']);
+      exit;
+    }
+
+    $username = trim($data['username']);
+    $email = trim($data['email']);
+    $password = trim($data['password']);
+    $confirmPassword = trim($data['confirm_password']);
+
+    if ($password !== $confirmPassword) {
+      echo json_encode(['success' => false, 'message' => 'Passwords do not match!']);
+      exit;
+    }
+
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
     $db = new Database();
     $conn = $db->getConnection();
 
-    $message = '';
+    $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
+    $stmt->bind_param('sss', $username, $email, $hashedPassword);
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-      $username = $_POST['username'];
-      $email = $_POST['email'];
-      $password = $_POST['password'];
-      $confirmPassword = $_POST['confirm_password'];
-
-      // Basic validation
-      if ($password !== $confirmPassword) {
-        $message = 'Passwords do not match!';
-      } else {
-        // Hash the password
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-        // Insert user into the database
-        $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-        $stmt->bind_param('sss', $username, $email, $hashedPassword);
-
-        try {
-          if ($stmt->execute()) {
-            // Store success message in session
-            session_start();
-            $_SESSION['register_success'] = 'Registration successful! You can now log in.';
-
-            // Redirect to the login page
-            header('Location: /');
-            exit;
-          }
-        } catch (mysqli_sql_exception $e) {
-          // Check for duplicate entry error (error code 1062)
-          if ($e->getCode() === 1062) {
-            if (strpos($e->getMessage(), 'username') !== false) {
-              $message = 'Username is already taken.';
-            } elseif (strpos($e->getMessage(), 'email') !== false) {
-              $message = 'Email is already registered.';
-            } else {
-              $message = 'Duplicate entry detected.';
-            }
-          } else {
-            $message = 'Error: ' . $e->getMessage();
-          }
-        } finally {
-          $stmt->close();
-        }
+    try {
+      if ($stmt->execute()) {
+        $_SESSION['register_success'] = 'Registration successful! You can now log in.';
+        echo json_encode(['success' => true, 'redirect' => '/']);
+        exit;
       }
+    } catch (mysqli_sql_exception $e) {
+      if ($e->getCode() === 1062) {
+        if (strpos($e->getMessage(), 'username') !== false) {
+          echo json_encode(['success' => false, 'message' => 'Username is already taken.']);
+        } elseif (strpos($e->getMessage(), 'email') !== false) {
+          echo json_encode(['success' => false, 'message' => 'Email is already registered.']);
+        } else {
+          echo json_encode(['success' => false, 'message' => 'Duplicate entry detected.']);
+        }
+      } else {
+        echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+      }
+    } finally {
+      $stmt->close();
     }
-
-    $_SESSION["register_message"] = $message;
   }
 
 

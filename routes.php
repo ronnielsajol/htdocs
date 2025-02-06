@@ -163,8 +163,7 @@ post('/login', function () {
 post('/register', function () {
     AuthMiddleware::handleGuestOnly();
     $controller = new UserController();
-    $message = $controller->handleRegister();
-    require_once __DIR__ . '/views/auth/register.php'; // You can create a register view for form submission
+    $controller->handleRegister();
 });
 
 post('/merchant/login', function () {

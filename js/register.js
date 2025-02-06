@@ -11,20 +11,19 @@ const sequence = [
 animate(sequence);
 
 document.addEventListener("DOMContentLoaded", () => {
-	const loginForm = document.getElementById("loginForm");
-	const errorMessage = document.getElementById("login-error-message");
+	const registerForm = document.getElementById("registerForm");
+	const errorMessage = document.getElementById("register-error-message");
 
-	loginForm.addEventListener("submit", async (e) => {
+	registerForm.addEventListener("submit", async (e) => {
 		e.preventDefault();
 
-		const formData = new FormData(loginForm);
+		const formData = new FormData(registerForm);
 		const requestData = Object.fromEntries(formData.entries());
 
 		try {
-			const response = await fetch("http://localhost/login", {
-				// Change the URL to the login endpoint
-				//http://localhost/login
-				//http://stackandshop.com.mialias.net/login
+			const response = await fetch("http://localhost/register", {
+				// Change the URL to the register endpoint
+				//http://localhost/register
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
