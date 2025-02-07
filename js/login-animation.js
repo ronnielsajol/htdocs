@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		const requestData = Object.fromEntries(formData.entries());
 
 		try {
-			const response = await fetch("http://stackandshop.com.mialias.net/login", {
+			const response = await fetch("http://localhost/login", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",

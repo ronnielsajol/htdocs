@@ -50,7 +50,118 @@ include 'shared/header.php';
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
 
+    <style>
+    /* Add this CSS to your stylesheet */
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        padding: 20px;
+    }
 
+    /* Item card styles */
+    .item-card {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        transition: box-shadow 0.3s ease;
+    }
+
+    .item-card:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .item-image {
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .item-name {
+        margin: 10px 0;
+        font-size: 1.1em;
+    }
+
+    .item-price {
+        font-weight: bold;
+        margin: 5px 0;
+    }
+
+    .add-to-cart-btn {
+        margin-top: auto;
+        padding: 10px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    /* Search and filter forms */
+    .search-forms {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        gap: 10px;
+    }
+
+    .search-form, .filter-form {
+        gap: 10px;
+        flex: 1;
+        margin: 10px;
+    }
+
+    /* Responsive styles */
+    @media (max-width: 768px) {
+        .product-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .row {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .filter-form {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .search-forms {
+            flex-direction: column;
+        }
+
+        .search-form, .filter-form {
+            width: 100%;
+            margin: 0 0 10px 0;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .product-grid {
+            grid-template-columns: repeat(2, 1fr); /* Adjusted for two columns */
+        }
+
+        .item-card {
+            max-width: 100%;
+        }
+    }
+
+    .pagination-summary {
+        margin-bottom: 10px;
+    }
+
+
+
+    </style>
 </head>
 
 <body>
@@ -58,9 +169,6 @@ include 'shared/header.php';
     <main class="product-container">
 
         <div class="search-forms">
-
-
-
             <p class="pagination-summary">
                 Showing <?php echo $startItem; ?>–<?php echo $endItem; ?> of <?php echo $totalProducts; ?> items
             </p>
@@ -69,18 +177,20 @@ include 'shared/header.php';
                     value="<?php echo htmlspecialchars($_GET['search'] ?? ''); ?>">
                 <button type="submit" class="search-btn"><i class="fa fa-search" aria-hidden="true"></i></button>
             </form>
-            <form method="GET" action="" class="filter-form">
-                <select name="sort_by">
-                    <option value="price" <?php echo isset($_GET['sort_by']) && $_GET['sort_by'] === 'price' ? 'selected' : ''; ?>>Price</option>
-                    <option value="name" <?php echo isset($_GET['sort_by']) && $_GET['sort_by'] === 'name' ? 'selected' : ''; ?>>Alphabetically</option>
-                </select>
-                <!-- Order Dropdown -->
-                <select name="order">
-                    <option value="asc" <?php echo isset($_GET['order']) && $_GET['order'] === 'asc' ? 'selected' : ''; ?>>Ascending</option>
-                    <option value="desc" <?php echo isset($_GET['order']) && $_GET['order'] === 'desc' ? 'selected' : ''; ?>>Descending</option>
-                </select>
-                <button type="button" id="reset-btn">Reset</button>
-            </form>
+            <div class="row">
+                <form method="GET" action="" class="filter-form">
+                    <select name="sort_by">
+                        <option value="price" <?php echo isset($_GET['sort_by']) && $_GET['sort_by'] === 'price' ? 'selected' : ''; ?>>Price</option>
+                        <option value="name" <?php echo isset($_GET['sort_by']) && $_GET['sort_by'] === 'name' ? 'selected' : ''; ?>>Alphabetically</option>
+                    </select>
+                    <!-- Order Dropdown -->
+                    <select name="order">
+                        <option value="asc" <?php echo isset($_GET['order']) && $_GET['order'] === 'asc' ? 'selected' : ''; ?>>Ascending</option>
+                        <option value="desc" <?php echo isset($_GET['order']) && $_GET['order'] === 'desc' ? 'selected' : ''; ?>>Descending</option>
+                    </select>
+                    <button type="button" id="reset-btn">Reset</button>
+                </form>
+            </div>
         </div>
         <div class="product-grid">
             <?php foreach ($products as $product): ?>
