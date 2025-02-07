@@ -14,10 +14,7 @@ info.addEventListener("mouseout", () => {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
-    // Select elements safely
-    const info = document.querySelector(".user-info");
-    const menu = document.querySelector(".popover-menu");
-    const caret = document.querySelector(".fa-caret-left");
+
     const menuToggle = document.querySelector(".menu-toggle");
     const headerNav = document.querySelector(".header-nav");
 

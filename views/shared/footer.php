@@ -96,6 +96,10 @@ body {
             <i class="fa-regular fa-user"></i>
             User
         </a>
+        <a href="/logout" class="footer-link" style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+            <i class="fas fa-sign-out-alt" style="font-size: 20px;"></i>
+            Logout
+        </a>
     </div>
 </footer>
 
