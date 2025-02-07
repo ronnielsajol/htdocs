@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
 					})
 						.then((response) => {
 							if (response.ok) {
-								window.location.href = result.redirect;
+								window.location.href = `${result.redirect}?token=${token}`;
 							} else {
 								throw new Error("Unauthorized Access");
 							}

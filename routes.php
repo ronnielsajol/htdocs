@@ -78,7 +78,7 @@ get('/merchant/register', function () {
 // Protected user routes
 get('/home', function () {
     AuthMiddleware::handleUserAuth();
-    // header("Location: /home");
+    header("Location: /home");
     exit();
 });
 

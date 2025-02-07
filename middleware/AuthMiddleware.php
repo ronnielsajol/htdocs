@@ -10,13 +10,16 @@ class AuthMiddleware
     private static function getTokenFromHeader()
     {
         $headers = getallheaders();
-        error_log("Headers: " . print_r($headers, true));  // Log all headers for debugging
+        error_log("Headers: " . print_r($headers, true)); // Log all headers for debugging
+        $token = $headers['Authorization'] ?? ($_GET['token'] ?? null);
+        error_log("Headers: " . print_r($token, true)); // Log all headers for debugging
 
-        if (!isset($headers['Authorization'])) {
+
+        if (!$token) {
             return null;
         }
 
-        return str_replace("Bearer ", "", $headers['Authorization']);
+        return str_replace("Bearer ", "", $token);
     }
 
     /**
@@ -25,17 +28,18 @@ class AuthMiddleware
     public static function handleUserAuth()
     {
         $token = self::getTokenFromHeader();
+        error_log("From User Auth error: " . print_r($token, true));
 
         if (!$token) {
             http_response_code(401);
-            echo json_encode(["error" => "Unauthorized: No token provided."]);
+            echo json_encode(["error" => "Unauthorized: No token provided.", "TOKEN" => $token]);
             exit();
         }
 
         try {
             $decoded = JWTHandler::validateToken($token);
 
-            if (!$decoded || !isset($decoded->user_id)) {
+            if (!$decoded || !isset($decoded['user_id'])) {
                 throw new Exception("Invalid token.");
             }
 
@@ -64,7 +68,7 @@ class AuthMiddleware
         try {
             $decoded = JWTHandler::validateToken($token);
 
-            if (!$decoded || !isset($decoded->merchant_id) || $decoded->role !== 'merchant') {
+            if (!$decoded || !isset($decoded['user_id']) || $decoded['role'] !== 'merchant') {
                 throw new Exception("Unauthorized: Invalid merchant token.");
             }
 
@@ -87,7 +91,7 @@ class AuthMiddleware
             try {
                 $decoded = JWTHandler::validateToken($token);
 
-                if (isset($decoded->user_id)) {
+                if (isset($decoded['user_id'])) {
                     http_response_code(403);
                     echo json_encode(["error" => "Forbidden: Guests only."]);
                     exit();
@@ -114,7 +118,7 @@ class AuthMiddleware
         try {
             $decoded = JWTHandler::validateToken($token);
 
-            if (!$decoded || !isset($decoded->admin_id)) {
+            if (!$decoded || !isset($decoded['user_id']) || $decoded['role'] !== 'admin') {
                 throw new Exception("Unauthorized: Admin access only.");
             }
 
