@@ -172,4 +172,11 @@ button:focus {
 		flex: none;
 		width: 100%;
 	}
+}/* Responsive design improvements */
+@media (max-width: 480px) {
+	.hero-image {
+		max-width: 50%;
+		height: auto;;
+		margin-bottom: 1rem;
+	}
 }
