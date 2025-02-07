@@ -1,7 +1,7 @@
 <style>
    /* Footer Styling */
 .footer {
-    position: fixed;
+    position: sticky;
     bottom: 0;
     width: 100%;
     background-color: #333;
@@ -13,7 +13,7 @@
 .footer-nav {
     display: flex;
     justify-content: center;
-    gap: 20px;
+    gap: 40px;
 }
 
 .footer-link {
@@ -88,17 +88,13 @@ body {
             <i class="fas fa-home"></i>
             Home
         </a>
-        <a href="/products" class="footer-link">
-            <i class="fas fa-box"></i>
-            Products
-        </a>
         <a href="/orders" class="footer-link">
             <i class="fas fa-list-alt"></i>
             Orders
         </a>
         <a href="/orders" class="footer-link">
             <i class="fa-regular fa-user"></i>
-            Me
+            User
         </a>
     </div>
 </footer>

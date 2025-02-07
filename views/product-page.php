@@ -25,12 +25,14 @@ $nextProducts = $productData['nextProducts'];
 include 'shared/header.php';
 ?>
 
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?php echo htmlspecialchars($product['name']); ?></title>
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-
+  <link rel="stylesheet" href="../../css/product.css">
 </head>
 
 <body>
@@ -44,14 +46,15 @@ include 'shared/header.php';
       <p class="product-price">₱<?php echo number_format($product['price'], 2); ?></p>
       <p class="product-stock"><?php echo $product['quantity'] > 0 ? "In Stock: {$product['quantity']}" : "Out of Stock"; ?></p>
 
-      <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
       <div class="item-quantity">
-        <label for="quantity-<?php echo $product['id']; ?>">Quantity</label>
+        <label for="quantity-<?php echo $product['id']; ?>">Quantity:</label>
         <button class="decrease" type="button" onclick="adjustQuantity('<?php echo $product['id']; ?>', -1)">-</button>
         <input type="number" id="quantity-<?php echo $product['id']; ?>" name="quantity" min="1" max="<?php echo $product['quantity']; ?>" class="quantity-input" value="1">
         <button class="increase" type="button" onclick="adjustQuantity('<?php echo $product['id']; ?>', 1)">+</button>
       </div>
-      <button class="add-to-cart-btn" type="submit" <?php echo $product['quantity'] === 0 ? "disabled" : ""; ?> data-product-id="<?php echo $product['id'] ?>">Add to Cart</button>
+      <button class="add-to-cart-btn" type="button" <?php echo $product['quantity'] === 0 ? "disabled" : ""; ?> data-product-id="<?php echo $product['id'] ?>">
+        <?php echo $product['quantity'] === 0 ? "Out of Stock" : "Add to Cart"; ?>
+      </button>
     </div>
   </main>
 
@@ -63,8 +66,7 @@ include 'shared/header.php';
           <a href="/product?product_id=<?php echo $nextProduct['id']; ?>">
             <img src="<?php echo htmlspecialchars($nextProduct['image']); ?>"
               alt="<?php echo htmlspecialchars($nextProduct['name']); ?>"
-              class="related-item-image"
-              width="150px">
+              class="related-item-image">
             <h3 class="related-item-name"><?php echo htmlspecialchars($nextProduct['name']); ?></h3>
             <p class="related-item-price">₱<?php echo number_format($nextProduct['price'], 2); ?></p>
           </a>
@@ -72,21 +74,34 @@ include 'shared/header.php';
       <?php endforeach; ?>
     </div>
   </section>
-</body>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-<script>
-  function adjustQuantity(productId, delta) {
-    const quantityInput = document.getElementById(`quantity-${productId}`);
-    let currentValue = parseInt(quantityInput.value);
-    const maxQuantity = parseInt(quantityInput.max);
-    const minQuantity = parseInt(quantityInput.min);
 
-    currentValue += delta;
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script>
+    function adjustQuantity(productId, delta) {
+      const quantityInput = document.getElementById(`quantity-${productId}`);
+      let currentValue = parseInt(quantityInput.value);
+      const maxQuantity = parseInt(quantityInput.max);
+      const minQuantity = parseInt(quantityInput.min);
 
-    if (currentValue >= minQuantity && currentValue <= maxQuantity) {
-      quantityInput.value = currentValue;
+      currentValue += delta;
+
+      if (currentValue >= minQuantity && currentValue <= maxQuantity) {
+        quantityInput.value = currentValue;
+      }
     }
-  }
-</script>
+
+    document.querySelector('.add-to-cart-btn').addEventListener('click', function() {
+      const productId = this.dataset.productId;
+      const quantity = document.getElementById(`quantity-${productId}`).value;
+      
+      // Add to cart logic here
+      console.log(`Adding product ${productId} to cart with quantity ${quantity}`);
+      
+
+    });
+  </script>
+</body>
+</html>
 
 <?php include 'shared/footer.php'; ?>
+

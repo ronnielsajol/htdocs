@@ -12,7 +12,43 @@ class CartModel
         $this->conn = $database->getConnection();
     }
 
+    public function getAllProducts($search = '', $sortBy = null, $order = null)
+    {
+        $orderClause = '';
 
+        if ($sortBy && $order) {
+            $validSortBy = ['price', 'name'];
+            $validOrder = ['asc', 'desc'];
+
+            $sortBy = in_array($sortBy, $validSortBy) ? $sortBy : 'price';
+            $order = in_array($order, $validOrder) ? $order : 'asc';
+
+            $orderClause = " ORDER BY " . $sortBy . " " . $order;
+        }
+
+        $searchSql = "";
+        if ($search) {
+            $searchSql = " AND (name LIKE ? OR description LIKE ?)";
+        }
+
+        $sql = "SELECT id, name, description, price, image, quantity
+                FROM products
+                WHERE 1=1" . $searchSql . $orderClause;
+
+        $stmt = $this->conn->prepare($sql);
+
+        if ($search) {
+            $searchTerm = '%' . $search . '%';
+            $stmt->bind_param("ss", $searchTerm, $searchTerm);
+        }
+
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $products = $result->fetch_all(MYSQLI_ASSOC);
+
+        return $products;
+    }
     // Get all products
     public function getProducts($page, $itemsPerPage, $search = '', $sortBy = null, $order = null)
     {
